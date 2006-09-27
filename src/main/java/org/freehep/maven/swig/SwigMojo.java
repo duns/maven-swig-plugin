@@ -35,7 +35,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 08b8f10711b3 2006/09/27 23:04:37 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java b8dd1d434b0b 2006/09/27 23:38:49 duns $
  */
 public class SwigMojo extends AbstractMojo {
         
