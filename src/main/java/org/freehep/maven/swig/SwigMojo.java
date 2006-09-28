@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -21,6 +23,10 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
+import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
+import org.codehaus.plexus.compiler.util.scan.StaleSourceScanner;
+import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
 import org.codehaus.plexus.util.FileUtils;
 import org.freehep.maven.nar.Linker;
 import org.freehep.maven.nar.NarArtifact;
@@ -35,10 +41,31 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java b8dd1d434b0b 2006/09/27 23:38:49 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 9c44abbf39b0 2006/09/28 21:50:01 duns $
  */
 public class SwigMojo extends AbstractMojo {
-        
+    
+	/**
+	 * Skip the running of SWIG
+	 * 
+	 * @parameter expression="${swig.skip}" default-value="false"
+	 */
+	private boolean skip;
+
+	/**
+	 * Force the running of SWIG
+	 * 
+	 * @parameter expression="${swig.force}" default-value="false"
+	 */
+	private boolean force;
+
+    /**
+     * Define symbol for conditional compilation, same as -D option for swig.
+     *
+     * @parameter
+     */
+    private List defines;
+
     /**
      * Enable C++ processing, same as -c++ option for swig.
      *
@@ -177,13 +204,14 @@ public class SwigMojo extends AbstractMojo {
     private ArchiverManager archiverManager;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+    	if (skip) {
+            getLog().info( "SKIPPED Running SWIG compiler on "+source+" ...");
+    		return;
+    	}
+    	
     	targetDirectory = new File(targetDirectory, cpp ? "c++" : "c");        
         if (!targetDirectory.exists()) {
             targetDirectory.mkdirs();
-        }
-
-        if (!FileUtils.fileExists(javaTargetDirectory)) {
-            FileUtils.mkdir( javaTargetDirectory );
         }
 
         if (project != null) {
@@ -192,6 +220,17 @@ public class SwigMojo extends AbstractMojo {
 
         if (!sourceDirectory.endsWith("/")) {
             sourceDirectory = sourceDirectory+"/";
+        }
+        
+        if (packageName != null) {
+        	if (!javaTargetDirectory.endsWith("/")) {
+        		javaTargetDirectory = javaTargetDirectory+"/";
+        	}
+        	javaTargetDirectory += packageName.replace('.', File.separatorChar);
+        }
+        
+        if (!FileUtils.fileExists(javaTargetDirectory)) {
+            FileUtils.mkdir( javaTargetDirectory );
         }
         
         // NOTE, since a project will just load this as a plugin, there is no way to look up
@@ -205,7 +244,7 @@ public class SwigMojo extends AbstractMojo {
         narArtifacts.add(swigNar);
         
         narManager.downloadAttachedNars(narArtifacts, remoteArtifactRepositories, artifactResolver, null);
-        narManager.unpackAttachedNars(narArtifacts, archiverManager, null);
+        narManager.unpackAttachedNars(narArtifacts, archiverManager, null, os);
 
 		File swig = new File(narManager.getNarFile(swigNar).getParentFile(), "nar");
 		File swigInclude = new File(swig, "include");
@@ -213,20 +252,37 @@ public class SwigMojo extends AbstractMojo {
 		swig = new File(swig, "bin");
 		swig = new File(swig, NarUtil.getAOL(architecture, os, linker, null));
 		swig = new File(swig, "swig");
-				
-        // FIXME runs always. we could check for c++ output file ...
-        getLog().info( "Running SWIG compiler on "+source+" ...");
-        int error = runCommand(generateCommandLine(swig, swigInclude, swigJavaInclude));
-        if (error != 0) {
-        	throw new MojoFailureException("SWIG returned error code "+error);
-        }
+
+        File sourceFile = new File(sourceDirectory);
+        File targetFile = targetDirectory;
+        SourceInclusionScanner scanner = new StaleSourceScanner(staleMillis, Collections.singleton(source), Collections.EMPTY_SET);
+        SuffixMapping mapping = new SuffixMapping( ".swg", ".swg" );
+        scanner.addSourceMapping(mapping);
+        try {
+            Set files = scanner.getIncludedSources(sourceFile, targetFile);
+        
+            if (!files.isEmpty() || force) {
+                getLog().info( (force ? "FORCE " : "") +"Running SWIG compiler on "+source+" ...");
+                int error = runCommand(generateCommandLine(swig, swigInclude, swigJavaInclude));
+                if (error != 0) {
+                	throw new MojoFailureException("SWIG returned error code "+error);
+                }
+                FileUtils.copyFileToDirectory(new File(sourceDirectory, source), targetDirectory);
+            } else {
+            	getLog().info("Nothing to swig - all classes are up to date");
+            }
+        } catch (InclusionScanException e) {
+            throw new MojoExecutionException( "IDLJ: Source scanning failed", e );
+        } catch (IOException e) {
+            throw new MojoExecutionException( "IDLJ: Copy timestamp file failed", e );
+        }   
     }
 
 
     private String[] generateCommandLine(File swig, File swigInclude, File swigJavaInclude) throws MojoExecutionException {
         
         List cmdLine = new ArrayList();
-        
+                
         cmdLine.add(swig.toString());
         
         if (getLog().isDebugEnabled()) {
@@ -240,6 +296,14 @@ public class SwigMojo extends AbstractMojo {
             cmdLine.add("-c++");
         }        
 
+        // defines
+        if (defines != null) {
+            for (Iterator i = defines.iterator(); i.hasNext(); ) {
+                cmdLine.add("-D");
+                cmdLine.add((String)i.next());
+            }
+        }
+        
         // warnings
         if (noWarn != null) {
         	String noWarns[] = noWarn.split(",| ");
