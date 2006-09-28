@@ -41,7 +41,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 9c44abbf39b0 2006/09/28 21:50:01 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 071202ac2ea7 2006/09/28 22:47:00 duns $
  */
 public class SwigMojo extends AbstractMojo {
     
@@ -218,10 +218,6 @@ public class SwigMojo extends AbstractMojo {
             project.addCompileSourceRoot(javaTargetDirectory);
         }
 
-        if (!sourceDirectory.endsWith("/")) {
-            sourceDirectory = sourceDirectory+"/";
-        }
-        
         if (packageName != null) {
         	if (!javaTargetDirectory.endsWith("/")) {
         		javaTargetDirectory = javaTargetDirectory+"/";
@@ -231,6 +227,10 @@ public class SwigMojo extends AbstractMojo {
         
         if (!FileUtils.fileExists(javaTargetDirectory)) {
             FileUtils.mkdir( javaTargetDirectory );
+        }
+        
+        if (!sourceDirectory.endsWith("/")) {
+            sourceDirectory = sourceDirectory+"/";
         }
         
         // NOTE, since a project will just load this as a plugin, there is no way to look up
