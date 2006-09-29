@@ -16,6 +16,8 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
@@ -41,7 +43,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 071202ac2ea7 2006/09/28 22:47:00 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 20b24a75791f 2006/09/29 17:42:02 duns $
  */
 public class SwigMojo extends AbstractMojo {
     
@@ -154,6 +156,34 @@ public class SwigMojo extends AbstractMojo {
     private int staleMillis;
 
     /**
+     * Swig Executable (overrides built-in or user configured reference to NAR)
+     * 
+     * @parameter expression="${swig.exec}"
+     */
+    private String exec;
+    
+    /**
+     * GroupId for the swig NAR
+     * 
+     * @parameter expression="${swig.groupId}" default-value="org.swig"
+     */
+    private String groupId;
+    
+    /**
+     * ArtifactId for the swig NAR
+     * 
+     * @parameter expression="${swig.artifactId}" default-value="swig"
+     */
+    private String artifactId;
+    
+    /**
+     * Version for the swig NAR
+     * 
+     * @parameter expression="${swig.version}" default-value="1.3.29-1-SNAPSHOT"
+     */
+    private String version;
+    
+    /**
      * @parameter expression="${project}"
      * @required
      * @readonly
@@ -232,27 +262,48 @@ public class SwigMojo extends AbstractMojo {
         if (!sourceDirectory.endsWith("/")) {
             sourceDirectory = sourceDirectory+"/";
         }
+
+        File swig, swigInclude, swigJavaInclude;
+        if (exec == null) {
+	        // NOTE, since a project will just load this as a plugin, there is no way to look up
+	        // the org.swig:swig dependency, so we hardcode that in here, but it is configurable
+	        // in the configuration part of this plugin.
+	        Linker linker = new Linker("g++");
+	        NarManager narManager = new NarManager(getLog(), localRepository, project, architecture, os, linker);
+	        Artifact swigJar = new DefaultArtifact(groupId, artifactId, VersionRange.createFromVersion(version), "compile", "jar", "", artifactHandler);
+	
+	        // download jar file
+			try {
+				System.err.println("Resolving " + swigJar);
+				artifactResolver.resolve(swigJar, remoteArtifactRepositories, localRepository);
+			} catch (ArtifactNotFoundException e) {
+				String message = "Jar not found " + swigJar;
+				throw new MojoExecutionException(message, e);
+			} catch (ArtifactResolutionException e) {
+				String message = "Jar cannot be resolved " + swigJar;
+				throw new MojoExecutionException(message, e);
+			}
+	
+			NarArtifact swigNar = new NarArtifact(swigJar, narManager.getNarInfo(swigJar));
+	        
+	        // download attached nars
+	        List narArtifacts = new ArrayList();
+	        narArtifacts.add(swigNar);        
+	        narManager.downloadAttachedNars(narArtifacts, remoteArtifactRepositories, artifactResolver, null);
+	        narManager.unpackAttachedNars(narArtifacts, archiverManager, null, os);
+	
+			swig = new File(narManager.getNarFile(swigNar).getParentFile(), "nar");
+			swigInclude = new File(swig, "include");
+			swigJavaInclude = new File(swigInclude, "java");
+			swig = new File(swig, "bin");
+			swig = new File(swig, NarUtil.getAOL(architecture, os, linker, null));
+			swig = new File(swig, "swig");
+        } else {
+        	swig = new File(exec);
+        	swigInclude = null;
+        	swigJavaInclude = null;
+        }
         
-        // NOTE, since a project will just load this as a plugin, there is no way to look up
-        // the org.swig:swig dependency, so we hardcode that in here.
-        Linker linker = new Linker("g++");
-        NarManager narManager = new NarManager(getLog(), localRepository, project, architecture, os, linker);
-        Artifact swigNar = new DefaultArtifact("org.swig", "swig", VersionRange.createFromVersion("1.3.29-1-SNAPSHOT"), "compile", "jar", "", artifactHandler);
-        swigNar = new NarArtifact(swigNar, narManager.getNarInfo(swigNar));
-
-        List narArtifacts = new ArrayList();
-        narArtifacts.add(swigNar);
-        
-        narManager.downloadAttachedNars(narArtifacts, remoteArtifactRepositories, artifactResolver, null);
-        narManager.unpackAttachedNars(narArtifacts, archiverManager, null, os);
-
-		File swig = new File(narManager.getNarFile(swigNar).getParentFile(), "nar");
-		File swigInclude = new File(swig, "include");
-		File swigJavaInclude = new File(swigInclude, "java");
-		swig = new File(swig, "bin");
-		swig = new File(swig, NarUtil.getAOL(architecture, os, linker, null));
-		swig = new File(swig, "swig");
-
         File sourceFile = new File(sourceDirectory);
         File targetFile = targetDirectory;
         SourceInclusionScanner scanner = new StaleSourceScanner(staleMillis, Collections.singleton(source), Collections.EMPTY_SET);
@@ -338,8 +389,8 @@ public class SwigMojo extends AbstractMojo {
         cmdLine.add("-I"+sourceDirectory);
 
         // system swig include dirs
-        cmdLine.add("-I"+swigJavaInclude.toString());
-        cmdLine.add("-I"+swigInclude.toString());        
+        if (swigJavaInclude != null) cmdLine.add("-I"+swigJavaInclude.toString());
+        if (swigInclude != null) cmdLine.add("-I"+swigInclude.toString());        
         
         // swig file
         cmdLine.add(sourceDirectory+source);
