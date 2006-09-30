@@ -43,7 +43,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 907c4e4ce81e 2006/09/29 23:07:07 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java eaa1d41300cd 2006/09/30 16:12:04 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -273,6 +273,16 @@ public class SwigMojo extends AbstractMojo {
 			sourceDirectory = sourceDirectory + "/";
 		}
 
+		// make sure all NAR dependencies are downloaded and unpacked
+		// even if packaging is NOT nar
+		// in nar packaging, downloading happens in generate-sources phase and thus may be too late
+		// unpacking happens in process-sources which is definitely too late
+		// so we need to handle this here ourselves.
+		List narArtifacts = narManager.getNarDependencies("compile");
+		narManager.downloadAttachedNars(narArtifacts, remoteArtifactRepositories,
+					artifactResolver, null);
+		narManager.unpackAttachedNars(narArtifacts, archiverManager, null, os);
+		
 		File swig, swigInclude, swigJavaInclude;
 		if (exec == null) {
 			// NOTE, since a project will just load this as a plugin, there is
@@ -301,11 +311,11 @@ public class SwigMojo extends AbstractMojo {
 					.getNarInfo(swigJar));
 
 			// download attached nars
-			List narArtifacts = new ArrayList();
-			narArtifacts.add(swigNar);
-			narManager.downloadAttachedNars(narArtifacts,
+			List swigNarArtifacts = new ArrayList();
+			swigNarArtifacts.add(swigNar);
+			narManager.downloadAttachedNars(swigNarArtifacts,
 					remoteArtifactRepositories, artifactResolver, null);
-			narManager.unpackAttachedNars(narArtifacts, archiverManager, null,
+			narManager.unpackAttachedNars(swigNarArtifacts, archiverManager, null,
 					os);
 
 			swig = new File(narManager.getNarFile(swigNar).getParentFile(),
