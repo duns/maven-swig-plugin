@@ -10,8 +10,7 @@
   <packaging>maven-plugin</packaging>
   <name>FreeHEP SWIG Maven Plugin</name>
   <version>1.3.29-1-SNAPSHOT</version>
-  <description>The SWIG Plugin calls the swig compiler on a number of specified swig files and generates java and c++ for these
-  swig files. The java sources are added to the source path of the maven project.</description>
+  <description>see index.html</description>
   <repositories>
     <repository>
       <id>freehep-maven</id>

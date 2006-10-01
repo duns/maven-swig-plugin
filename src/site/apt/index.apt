@@ -1,0 +1,60 @@
+	---
+FreeHEP SWIG Plugin
+	---
+	---
+Mark Donszelmann
+	---
+	
+Introduction
+
+	The SWIG Plugin calls the swig compiler on a number of specified swig files and 
+generates java and c++/c wrapper code. 
+
+	The swig executable to run on your platform is downloaded as a NAR file (see 
+{{{http://java.freehep.org/freehep-nar-plugin}FreeHEP NAR Plugin}} for details 
+on the format). This NAR file includes the binary executable for swig and
+the include directories for running it. With the \<groupId\>, \<artifactId\>
+and \<version\> tags you can override this behaviour to use a newer or other
+version of swig. You can also use the \<exec\> tag point to a locally installed
+version of swig.
+
+	SWIG will compile the source file specified by the \<source\> tag.
+It currently only compares if that file is newer than the target (flag), so you
+should use <<<-Dswig.force=true>>> to force re-running swig if needed.
+You can also skip running swig by specifying <<<-Dswig.skip=true>>>.
+
+	If your sources (include files) contain C++ you need to specify the
+\<cpp\> tag.
+
+	SWIG will add the following paths to be included in its search:
+	
+	[[1]] User include directories specified by the \<includePaths\> and \<includePath\> tags.
+	
+	[[2]] Source directory <<<src/main/swg>>> with the swig source file, overrideable by
+	the <sourceDirectory> tag.
+	
+	[[3]] <<<src/main/include>>>	
+	
+	[[4]] Include directories of all the dependent NAR files.
+	
+	[[5]] Java include directory of the swig installation (from the SWIG NAR file).
+	
+	[[6]] Include directory of the swig installation (from the SWIG NAR file).
+
+	[]
+	
+	The generated C++ or C code (dependent on the \<cpp\> tag) ends up in the
+directory specified \<targetDirectory\> tag, defaulting to <<<target/swig>>> and appended
+by <<<cxx>>> or <<<c>>>. This directory is added to the compile source paths for further
+processing by the NAR plugin or any other plugin handling native code.
+
+	The only supported target language at this time is java.
+The generated java sources are added to the source compile path for compilation
+with the maven-compiler-plugin. You can override where the java generated sources
+go by specifying the \<javaTargetDirectory\> tag. The actual directory will also 
+reflect the setting of the <packageName> tag. Currently the generated java files 
+are not picked up by the maven-apidoc-plugin, unless you set \<javaTargetDirectory\>
+to <<<src/main/java>>>.
+
+	Warnings can be suppressed by adding them (as numbers) to the list in the
+\<noWarn\> tag.

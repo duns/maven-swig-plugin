@@ -1,0 +1,41 @@
+<project name="freehep">
+    <bannerLeft>
+        <name>FreeHEP SWIG Plugin</name>
+<!--        <src>http://maven.apache.org/images/apache-maven-project.png</src> -->
+<!-- FIXME, should this be substituted by some properties -->
+        <href>http://java.freehep.org/freehep-swig-plugin</href>
+    </bannerLeft>
+    
+    <bannerRight>
+        <name>FreeHEP</name>
+        <src>http://java.freehep.org/images/sm-freehep.gif</src>
+        <href>http://java.freehep.org</href>
+    </bannerRight>
+  
+  <body>
+    <links>
+        <item name="FreeHEP" href="http://java.freehep.org/"/>
+        <item name="Maven 2" href="http://maven.apache.org/maven2/"/>
+    </links>
+
+    <menu name="Overview">
+      <item name="Introduction" href="index.html"/>
+      <item name="Goals" href="plugin-info.html"/>
+      <item name="Usage" href="usage.html"/>
+      <item name="Bug Reports" href="http://bugs.freehep.org/browse/SWIGPLUGIN"/>
+<!--
+      <item name="FAQ" href="faq.html"/>
+-->
+    </menu>
+
+<!--   
+    <menu name="Examples">
+      <item name="description1" href="examples/example-one.html"/>
+      <item name="description2" href="examples/example-two.html"/>
+    </menu>
+-->
+
+    ${reports}
+    
+  </body>
+</project>
