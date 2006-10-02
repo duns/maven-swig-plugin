@@ -43,7 +43,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java eaa1d41300cd 2006/09/30 16:12:04 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 28def4f3b027 2006/10/02 21:32:54 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -89,6 +89,20 @@ public class SwigMojo extends AbstractMojo {
 	 */
 	private String noWarn;
 
+	/**
+	 * Enable all warnings, same as -Wall
+	 * 
+	 * @parameter expression="${swig.warnAll}" default-value="false"
+	 */
+	private boolean warnAll;
+	
+	/**
+	 * Treat warnings as errors, same as -Werror
+	 * 
+	 * @parameter expression="${swig.warnError}" default-value="false"
+	 */
+	private boolean warnError;
+	
 	/**
 	 * The target directory into which to generate the output.
 	 * 
@@ -396,6 +410,14 @@ public class SwigMojo extends AbstractMojo {
 			for (int i = 0; i < noWarns.length; i++) {
 				cmdLine.add("-w" + noWarns[i]);
 			}
+		}
+
+		if (warnAll) {
+			cmdLine.add("-Wall");
+		}
+		
+		if (warnError) {
+			cmdLine.add("-Werror");
 		}
 
 		// output file
