@@ -30,6 +30,7 @@ import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.StaleSourceScanner;
 import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
 import org.codehaus.plexus.util.FileUtils;
+import org.freehep.maven.nar.AbstractNarMojo;
 import org.freehep.maven.nar.Linker;
 import org.freehep.maven.nar.NarArtifact;
 import org.freehep.maven.nar.NarManager;
@@ -43,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 65b847a0fd3c 2006/10/11 20:56:42 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java d3b9b87287c9 2006/10/12 20:49:59 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -350,7 +351,7 @@ public class SwigMojo extends AbstractMojo {
 		File targetFile = targetDirectory;
 		SourceInclusionScanner scanner = new StaleSourceScanner(staleMillis,
 				Collections.singleton(source), Collections.EMPTY_SET);
-		SuffixMapping mapping = new SuffixMapping(".swg", ".swg");
+		SuffixMapping mapping = new SuffixMapping(".swg", ".flag");
 		scanner.addSourceMapping(mapping);
 		try {
 			Set files = scanner.getIncludedSources(sourceFile, targetFile);
@@ -365,8 +366,9 @@ public class SwigMojo extends AbstractMojo {
 					throw new MojoFailureException("SWIG returned error code "
 							+ error);
 				}
-				FileUtils.copyFileToDirectory(
-						new File(sourceDirectory, source), targetDirectory);
+				File flagFile = new File(targetDirectory, FileUtils.basename(source, ".swg") + ".flag");
+				FileUtils.fileDelete(flagFile.getPath());
+				FileUtils.fileWrite(flagFile.getPath(), "");
 			} else {
 				getLog().info("Nothing to swig - all classes are up to date");
 			}
@@ -374,7 +376,7 @@ public class SwigMojo extends AbstractMojo {
 			throw new MojoExecutionException("IDLJ: Source scanning failed", e);
 		} catch (IOException e) {
 			throw new MojoExecutionException(
-					"IDLJ: Copy timestamp file failed", e);
+					"SWIG: Creation of timestamp flag file failed", e);
 		}
 	}
 
