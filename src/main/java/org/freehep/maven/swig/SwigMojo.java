@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java d3b9b87287c9 2006/10/12 20:49:59 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java cc4e4e6acc68 2006/10/13 23:26:59 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -62,7 +62,14 @@ public class SwigMojo extends AbstractMojo {
 	 */
 	private boolean force;
 
-	/**
+    /**
+     * Level of logging messages, 0 is minimum.
+     * 
+     * @parameter expression="${nar.logLevel}" default-value="0"
+     */
+    private int logLevel;
+
+    /**
 	 * Define symbol for conditional compilation, same as -D option for swig.
 	 * 
 	 * @parameter
@@ -260,7 +267,7 @@ public class SwigMojo extends AbstractMojo {
 		}
 
 		Linker linker = new Linker("g++");
-		narManager = new NarManager(getLog(), localRepository, project,
+		narManager = new NarManager(getLog(), logLevel, localRepository, project,
 				architecture, os, linker);
 
 		targetDirectory = new File(targetDirectory, cpp ? "c++" : "c");
