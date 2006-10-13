@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java cc4e4e6acc68 2006/10/13 23:26:59 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java c7c0a9d63772 2006/10/13 23:37:06 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -65,7 +65,7 @@ public class SwigMojo extends AbstractMojo {
     /**
      * Level of logging messages, 0 is minimum.
      * 
-     * @parameter expression="${nar.logLevel}" default-value="0"
+     * @parameter expression="${swig.logLevel}" default-value="0"
      */
     private int logLevel;
 
@@ -262,7 +262,7 @@ public class SwigMojo extends AbstractMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {		
 		if (skip) {
 			getLog()
-					.info("SKIPPED Running SWIG compiler on " + source + " ...");
+					.warn("SKIPPED Running SWIG compiler on " + source + " ...");
 			return;
 		}
 
@@ -318,7 +318,7 @@ public class SwigMojo extends AbstractMojo {
 
 			// download jar file
 			try {
-				System.err.println("Resolving " + swigJar);
+//				System.err.println("Resolving " + swigJar);
 				artifactResolver.resolve(swigJar, remoteArtifactRepositories,
 						localRepository);
 			} catch (ArtifactNotFoundException e) {
