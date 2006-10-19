@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java c7c0a9d63772 2006/10/13 23:37:06 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 85fbe52e181e 2006/10/19 20:48:19 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -329,8 +329,7 @@ public class SwigMojo extends AbstractMojo {
 				throw new MojoExecutionException(message, e);
 			}
 
-			NarArtifact swigNar = new NarArtifact(swigJar, narManager
-					.getNarInfo(swigJar));
+			NarArtifact swigNar = new NarArtifact(swigJar, narManager.getNarInfo(swigJar));
 
 			// download attached nars
 			List swigNarArtifacts = new ArrayList();
