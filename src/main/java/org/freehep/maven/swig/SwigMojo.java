@@ -44,23 +44,23 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 85fbe52e181e 2006/10/19 20:48:19 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 423080c09b0f 2006/10/24 16:07:13 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
-	/**
-	 * Skip the running of SWIG
-	 * 
-	 * @parameter expression="${swig.skip}" default-value="false"
-	 */
-	private boolean skip;
+    /**
+     * Skip the running of SWIG
+     * 
+     * @parameter expression="${swig.skip}" default-value="false"
+     */
+    private boolean skip;
 
-	/**
-	 * Force the running of SWIG
-	 * 
-	 * @parameter expression="${swig.force}" default-value="false"
-	 */
-	private boolean force;
+    /**
+     * Force the running of SWIG
+     * 
+     * @parameter expression="${swig.force}" default-value="false"
+     */
+    private boolean force;
 
     /**
      * Level of logging messages, 0 is minimum.
@@ -70,459 +70,467 @@ public class SwigMojo extends AbstractMojo {
     private int logLevel;
 
     /**
-	 * Define symbol for conditional compilation, same as -D option for swig.
-	 * 
-	 * @parameter
-	 */
-	private List defines;
+     * Define symbol for conditional compilation, same as -D option for swig.
+     * 
+     * @parameter
+     */
+    private List defines;
 
-	/**
-	 * Enable C++ processing, same as -c++ option for swig.
-	 * 
-	 * @parameter expression="${swig.cpp}" default-value="false"
-	 */
-	private boolean cpp;
+    /**
+     * Enable C++ processing, same as -c++ option for swig.
+     * 
+     * @parameter expression="${swig.cpp}" default-value="false"
+     */
+    private boolean cpp;
 
-	/**
-	 * Add include paths. By default the current directory is scanned.
-	 * 
-	 * @parameter
-	 */
-	private List includePaths;
+    /**
+     * Add include paths. By default the current directory is scanned.
+     * 
+     * @parameter
+     */
+    private List includePaths;
 
-	/**
-	 * List of warning numbers to be suppressed, same as -w option for swig.
-	 * 
-	 * @parameter expression="${swig.noWarn}"
-	 */
-	private String noWarn;
+    /**
+     * List of warning numbers to be suppressed, same as -w option for swig.
+     * 
+     * @parameter expression="${swig.noWarn}"
+     */
+    private String noWarn;
 
-	/**
-	 * Enable all warnings, same as -Wall
-	 * 
-	 * @parameter expression="${swig.warnAll}" default-value="false"
-	 */
-	private boolean warnAll;
-	
-	/**
-	 * Treat warnings as errors, same as -Werror
-	 * 
-	 * @parameter expression="${swig.warnError}" default-value="false"
-	 */
-	private boolean warnError;
-	
-	/**
-	 * The target directory into which to generate the output.
-	 * 
-	 * @parameter expression="${project.build.directory}/swig"
-	 */
-	private File targetDirectory;
+    /**
+     * Enable all warnings, same as -Wall
+     * 
+     * @parameter expression="${swig.warnAll}" default-value="false"
+     */
+    private boolean warnAll;
 
-	/**
-	 * The package name for the generated java files (fully qualified ex:
-	 * org.freehep.jni).
-	 * 
-	 * @parameter expression="${swig.packageName}"
-	 */
-	private String packageName;
+    /**
+     * Treat warnings as errors, same as -Werror
+     * 
+     * @parameter expression="${swig.warnError}" default-value="false"
+     */
+    private boolean warnError;
 
-	/**
-	 * The target directory into which to generate the java output, becomes
-	 * -outdir option for swig.
-	 * 
-	 * @parameter expression="${project.build.directory}/swig/java"
-	 */
-	private String javaTargetDirectory;
+    /**
+     * The target directory into which to generate the output.
+     * 
+     * @parameter expression="${project.build.directory}/swig"
+     */
+    private File targetDirectory;
 
-	/**
-	 * The directory to look for swig files and swig include files. Also added
-	 * to -I flag when swig is run.
-	 * 
-	 * @parameter expression="${basedir}/src/main/swig"
-	 * @required
-	 */
-	private String sourceDirectory;
+    /**
+     * The package name for the generated java files (fully qualified ex:
+     * org.freehep.jni).
+     * 
+     * @parameter expression="${swig.packageName}"
+     */
+    private String packageName;
 
-	/**
-	 * The swig file to process, normally in source directory set by
-	 * swigDirectory.
-	 * 
-	 * @parameter
-	 * @required
-	 */
-	private String source;
+    /**
+     * The target directory into which to generate the java output, becomes
+     * -outdir option for swig.
+     * 
+     * @parameter expression="${project.build.directory}/swig/java"
+     */
+    private String javaTargetDirectory;
 
-	/**
-	 * The Architecture for picking up swig, Some choices are: "x86", "i386",
-	 * "amd64", "ppc", "sparc", ... Defaults to a derived value from ${os.arch}
-	 * 
-	 * @parameter expression="${os.arch}"
-	 * @required
-	 */
-	private String architecture;
+    /**
+     * The directory to look for swig files and swig include files. Also added
+     * to -I flag when swig is run.
+     * 
+     * @parameter expression="${basedir}/src/main/swig"
+     * @required
+     */
+    private String sourceDirectory;
 
-	/**
-	 * The Operating System for picking up swig. Some choices are: "Windows",
-	 * "Linux", "MacOSX", "SunOS", ... Defaults to a derived value from
-	 * ${os.name}
-	 * 
-	 * @parameter expression=""
-	 */
-	private String os;
+    /**
+     * The swig file to process, normally in source directory set by
+     * swigDirectory.
+     * 
+     * @parameter
+     * @required
+     */
+    private String source;
 
-	/**
-	 * The granularity in milliseconds of the last modification date for testing
-	 * whether a source needs recompilation
-	 * 
-	 * @parameter expression="${idlj.staleMillis}" default-value="0"
-	 * @required
-	 */
-	private int staleMillis;
+    /**
+     * The Architecture for picking up swig, Some choices are: "x86", "i386",
+     * "amd64", "ppc", "sparc", ... Defaults to a derived value from ${os.arch}
+     * 
+     * @parameter expression="${os.arch}"
+     * @required
+     */
+    private String architecture;
 
-	/**
-	 * Swig Executable (overrides built-in or user configured reference to NAR)
-	 * 
-	 * @parameter expression="${swig.exec}"
-	 */
-	private String exec;
+    /**
+     * The Operating System for picking up swig. Some choices are: "Windows",
+     * "Linux", "MacOSX", "SunOS", ... Defaults to a derived value from
+     * ${os.name}
+     * 
+     * @parameter expression=""
+     */
+    private String os;
 
-	/**
-	 * GroupId for the swig NAR
-	 * 
-	 * @parameter expression="${swig.groupId}" default-value="org.swig"
-	 */
-	private String groupId;
+    /**
+     * The granularity in milliseconds of the last modification date for testing
+     * whether a source needs recompilation
+     * 
+     * @parameter expression="${idlj.staleMillis}" default-value="0"
+     * @required
+     */
+    private int staleMillis;
 
-	/**
-	 * ArtifactId for the swig NAR
-	 * 
-	 * @parameter expression="${swig.artifactId}" default-value="swig"
-	 */
-	private String artifactId;
+    /**
+     * Swig Executable (overrides built-in or user configured reference to NAR)
+     * 
+     * @parameter expression="${swig.exec}"
+     */
+    private String exec;
 
-	/**
-	 * Version for the swig NAR
-	 * 
-	 * @parameter expression="${swig.version}" default-value="1.3.29-1"
-	 */
-	private String version;
+    /**
+     * GroupId for the swig NAR
+     * 
+     * @parameter expression="${swig.groupId}" default-value="org.swig"
+     */
+    private String groupId;
 
-	/**
-	 * @parameter expression="${project}"
-	 * @required
-	 * @readonly
-	 */
-	private MavenProject project;
+    /**
+     * ArtifactId for the swig NAR
+     * 
+     * @parameter expression="${swig.artifactId}" default-value="swig"
+     */
+    private String artifactId;
 
-	/**
-	 * @parameter expression="${localRepository}"
-	 * @required
-	 * @readonly
-	 */
-	private ArtifactRepository localRepository;
+    /**
+     * Version for the swig NAR
+     * 
+     * @parameter expression="${swig.version}" default-value="1.3.29-1"
+     */
+    private String version;
 
-	/**
-	 * Artifact handler
-	 * 
-	 * @component role="org.apache.maven.artifact.handler.ArtifactHandler"
-	 * @required
-	 * @readonly
-	 */
-	private ArtifactHandler artifactHandler;
+    /**
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    private MavenProject project;
 
-	/**
-	 * Artifact resolver, needed to download source jars for inclusion in
-	 * classpath.
-	 * 
-	 * @component role="org.apache.maven.artifact.resolver.ArtifactResolver"
-	 * @required
-	 * @readonly
-	 */
-	private ArtifactResolver artifactResolver;
+    /**
+     * @parameter expression="${localRepository}"
+     * @required
+     * @readonly
+     */
+    private ArtifactRepository localRepository;
 
-	/**
-	 * Remote repositories which will be searched for source attachments.
-	 * 
-	 * @parameter expression="${project.remoteArtifactRepositories}"
-	 * @required
-	 * @readonly
-	 */
-	private List remoteArtifactRepositories;
+    /**
+     * Artifact handler
+     * 
+     * @component role="org.apache.maven.artifact.handler.ArtifactHandler"
+     * @required
+     * @readonly
+     */
+    private ArtifactHandler artifactHandler;
 
-	/**
-	 * To look up Archiver/UnArchiver implementations
-	 * 
-	 * @parameter expression="${component.org.codehaus.plexus.archiver.manager.ArchiverManager}"
-	 * @required
-	 */
-	private ArchiverManager archiverManager;
+    /**
+     * Artifact resolver, needed to download source jars for inclusion in
+     * classpath.
+     * 
+     * @component role="org.apache.maven.artifact.resolver.ArtifactResolver"
+     * @required
+     * @readonly
+     */
+    private ArtifactResolver artifactResolver;
 
-	private NarManager narManager;
-	
-	public void execute() throws MojoExecutionException, MojoFailureException {		
-		if (skip) {
-			getLog()
-					.warn("SKIPPED Running SWIG compiler on " + source + " ...");
-			return;
-		}
+    /**
+     * Remote repositories which will be searched for source attachments.
+     * 
+     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @required
+     * @readonly
+     */
+    private List remoteArtifactRepositories;
 
-		Linker linker = new Linker("g++");
-		narManager = new NarManager(getLog(), logLevel, localRepository, project,
-				architecture, os, linker);
+    /**
+     * To look up Archiver/UnArchiver implementations
+     * 
+     * @parameter expression="${component.org.codehaus.plexus.archiver.manager.ArchiverManager}"
+     * @required
+     */
+    private ArchiverManager archiverManager;
 
-		targetDirectory = new File(targetDirectory, cpp ? "c++" : "c");
-		if (!targetDirectory.exists()) {
-			targetDirectory.mkdirs();
-		}
+    private NarManager narManager;
 
-		if (project != null) {
-			project.addCompileSourceRoot(javaTargetDirectory);
-			project.addCompileSourceRoot(targetDirectory.getPath());
-		}
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
+            getLog()
+                    .warn("SKIPPED Running SWIG compiler on " + source + " ...");
+            return;
+        }
 
-		if (packageName != null) {
-			if (!javaTargetDirectory.endsWith("/")) {
-				javaTargetDirectory = javaTargetDirectory + "/";
-			}
-			javaTargetDirectory += packageName.replace('.', File.separatorChar);
-		}
+        os = NarUtil.getOS(os);
+        // FIXME, should have some function in NarUtil
+        Linker linker = new Linker("g++");
+        narManager = new NarManager(getLog(), logLevel, localRepository,
+                project, architecture, os, linker);
 
-		if (!FileUtils.fileExists(javaTargetDirectory)) {
-			FileUtils.mkdir(javaTargetDirectory);
-		}
+        targetDirectory = new File(targetDirectory, cpp ? "c++" : "c");
+        if (!targetDirectory.exists()) {
+            targetDirectory.mkdirs();
+        }
 
-		if (!sourceDirectory.endsWith("/")) {
-			sourceDirectory = sourceDirectory + "/";
-		}
+        if (project != null) {
+            project.addCompileSourceRoot(javaTargetDirectory);
+            project.addCompileSourceRoot(targetDirectory.getPath());
+        }
 
-		// make sure all NAR dependencies are downloaded and unpacked
-		// even if packaging is NOT nar
-		// in nar packaging, downloading happens in generate-sources phase and thus may be too late
-		// unpacking happens in process-sources which is definitely too late
-		// so we need to handle this here ourselves.
-		List narArtifacts = narManager.getNarDependencies("compile");
-		narManager.downloadAttachedNars(narArtifacts, remoteArtifactRepositories,
-					artifactResolver, null);
-		narManager.unpackAttachedNars(narArtifacts, archiverManager, null, os);
-		
-		File swig, swigInclude, swigJavaInclude;
-		if (exec == null) {
-			// NOTE, since a project will just load this as a plugin, there is
-			// no way to look up
-			// the org.swig:swig dependency, so we hardcode that in here, but it
-			// is configurable
-			// in the configuration part of this plugin.
-			Artifact swigJar = new DefaultArtifact(groupId, artifactId,
-					VersionRange.createFromVersion(version), "compile", "jar",
-					"", artifactHandler);
+        if (packageName != null) {
+            if (!javaTargetDirectory.endsWith("/")) {
+                javaTargetDirectory = javaTargetDirectory + "/";
+            }
+            javaTargetDirectory += packageName.replace('.', File.separatorChar);
+        }
 
-			// download jar file
-			try {
-//				System.err.println("Resolving " + swigJar);
-				artifactResolver.resolve(swigJar, remoteArtifactRepositories,
-						localRepository);
-			} catch (ArtifactNotFoundException e) {
-				String message = "Jar not found " + swigJar;
-				throw new MojoExecutionException(message, e);
-			} catch (ArtifactResolutionException e) {
-				String message = "Jar cannot be resolved " + swigJar;
-				throw new MojoExecutionException(message, e);
-			}
+        if (!FileUtils.fileExists(javaTargetDirectory)) {
+            FileUtils.mkdir(javaTargetDirectory);
+        }
 
-			NarArtifact swigNar = new NarArtifact(swigJar, narManager.getNarInfo(swigJar));
+        if (!sourceDirectory.endsWith("/")) {
+            sourceDirectory = sourceDirectory + "/";
+        }
 
-			// download attached nars
-			List swigNarArtifacts = new ArrayList();
-			swigNarArtifacts.add(swigNar);
-			narManager.downloadAttachedNars(swigNarArtifacts,
-					remoteArtifactRepositories, artifactResolver, null);
-			narManager.unpackAttachedNars(swigNarArtifacts, archiverManager, null,
-					os);
+        // make sure all NAR dependencies are downloaded and unpacked
+        // even if packaging is NOT nar
+        // in nar packaging, downloading happens in generate-sources phase and
+        // thus may be too late
+        // unpacking happens in process-sources which is definitely too late
+        // so we need to handle this here ourselves.
+        List narArtifacts = narManager.getNarDependencies("compile");
+        narManager.downloadAttachedNars(narArtifacts,
+                remoteArtifactRepositories, artifactResolver, null);
+        narManager.unpackAttachedNars(narArtifacts, archiverManager, null, os);
 
-			swig = new File(narManager.getNarFile(swigNar).getParentFile(),
-					"nar");
-			swigInclude = new File(swig, "include");
-			swigJavaInclude = new File(swigInclude, "java");
-			swig = new File(swig, "bin");
-			swig = new File(swig, NarUtil
-					.getAOL(architecture, os, linker, null));
-			swig = new File(swig, "swig");
-		} else {
-			swig = new File(exec);
-			swigInclude = null;
-			swigJavaInclude = null;
-		}
+        File swig, swigInclude, swigJavaInclude;
+        if (exec == null) {
+            // NOTE, since a project will just load this as a plugin, there is
+            // no way to look up
+            // the org.swig:swig dependency, so we hardcode that in here, but it
+            // is configurable
+            // in the configuration part of this plugin.
+            Artifact swigJar = new DefaultArtifact(groupId, artifactId,
+                    VersionRange.createFromVersion(version), "compile", "jar",
+                    "", artifactHandler);
 
-		File sourceFile = new File(sourceDirectory);
-		File targetFile = targetDirectory;
-		SourceInclusionScanner scanner = new StaleSourceScanner(staleMillis,
-				Collections.singleton(source), Collections.EMPTY_SET);
-		SuffixMapping mapping = new SuffixMapping(".swg", ".flag");
-		scanner.addSourceMapping(mapping);
-		try {
-			Set files = scanner.getIncludedSources(sourceFile, targetFile);
+            // download jar file
+            try {
+                // System.err.println("Resolving " + swigJar);
+                artifactResolver.resolve(swigJar, remoteArtifactRepositories,
+                        localRepository);
+            } catch (ArtifactNotFoundException e) {
+                String message = "Jar not found " + swigJar;
+                throw new MojoExecutionException(message, e);
+            } catch (ArtifactResolutionException e) {
+                String message = "Jar cannot be resolved " + swigJar;
+                throw new MojoExecutionException(message, e);
+            }
 
-			if (!files.isEmpty() || force) {
-				getLog().info(
-						(force ? "FORCE " : "") + "Running SWIG compiler on "
-								+ source + " ...");
-				int error = runCommand(generateCommandLine(swig, swigInclude,
-						swigJavaInclude));
-				if (error != 0) {
-					throw new MojoFailureException("SWIG returned error code "
-							+ error);
-				}
-				File flagFile = new File(targetDirectory, FileUtils.basename(source, ".swg") + ".flag");
-				FileUtils.fileDelete(flagFile.getPath());
-				FileUtils.fileWrite(flagFile.getPath(), "");
-			} else {
-				getLog().info("Nothing to swig - all classes are up to date");
-			}
-		} catch (InclusionScanException e) {
-			throw new MojoExecutionException("IDLJ: Source scanning failed", e);
-		} catch (IOException e) {
-			throw new MojoExecutionException(
-					"SWIG: Creation of timestamp flag file failed", e);
-		}
-	}
+            NarArtifact swigNar = new NarArtifact(swigJar, narManager
+                    .getNarInfo(swigJar));
 
-	private String[] generateCommandLine(File swig, File swigInclude,
-			File swigJavaInclude) throws MojoExecutionException, MojoFailureException {
+            // download attached nars
+            List swigNarArtifacts = new ArrayList();
+            swigNarArtifacts.add(swigNar);
+            narManager.downloadAttachedNars(swigNarArtifacts,
+                    remoteArtifactRepositories, artifactResolver, null);
+            narManager.unpackAttachedNars(swigNarArtifacts, archiverManager,
+                    null, os);
 
-		List cmdLine = new ArrayList();
+            swig = new File(narManager.getNarFile(swigNar).getParentFile(),
+                    "nar");
+            swigInclude = new File(swig, "include");
+            swigJavaInclude = new File(swigInclude, "java");
+            swig = new File(swig, "bin");
+            swig = new File(swig, NarUtil
+                    .getAOL(architecture, os, linker, null));
+            swig = new File(swig, "swig");
+        } else {
+            swig = new File(exec);
+            swigInclude = null;
+            swigJavaInclude = null;
+        }
 
-		cmdLine.add(swig.toString());
+        File sourceFile = new File(sourceDirectory);
+        File targetFile = targetDirectory;
+        SourceInclusionScanner scanner = new StaleSourceScanner(staleMillis,
+                Collections.singleton(source), Collections.EMPTY_SET);
+        SuffixMapping mapping = new SuffixMapping(".swg", ".flag");
+        scanner.addSourceMapping(mapping);
+        try {
+            Set files = scanner.getIncludedSources(sourceFile, targetFile);
 
-		if (getLog().isDebugEnabled()) {
-			cmdLine.add("-v");
-		}
+            if (!files.isEmpty() || force) {
+                getLog().info(
+                        (force ? "FORCE " : "") + "Running SWIG compiler on "
+                                + source + " ...");
+                int error = runCommand(generateCommandLine(swig, swigInclude,
+                        swigJavaInclude));
+                if (error != 0) {
+                    throw new MojoFailureException("SWIG returned error code "
+                            + error);
+                }
+                File flagFile = new File(targetDirectory, FileUtils.basename(
+                        source, ".swg")
+                        + ".flag");
+                FileUtils.fileDelete(flagFile.getPath());
+                FileUtils.fileWrite(flagFile.getPath(), "");
+            } else {
+                getLog().info("Nothing to swig - all classes are up to date");
+            }
+        } catch (InclusionScanException e) {
+            throw new MojoExecutionException("IDLJ: Source scanning failed", e);
+        } catch (IOException e) {
+            throw new MojoExecutionException(
+                    "SWIG: Creation of timestamp flag file failed", e);
+        }
+    }
 
-		// FIXME hardcoded
-		cmdLine.add("-java");
+    private String[] generateCommandLine(File swig, File swigInclude,
+            File swigJavaInclude) throws MojoExecutionException,
+            MojoFailureException {
 
-		if (cpp) {
-			cmdLine.add("-c++");
-		}
+        List cmdLine = new ArrayList();
 
-		// defines
-		if (defines != null) {
-			for (Iterator i = defines.iterator(); i.hasNext();) {
-				cmdLine.add("-D");
-				cmdLine.add((String) i.next());
-			}
-		}
+        cmdLine.add(swig.toString());
 
-		// warnings
-		if (noWarn != null) {
-			String noWarns[] = noWarn.split(",| ");
-			for (int i = 0; i < noWarns.length; i++) {
-				cmdLine.add("-w" + noWarns[i]);
-			}
-		}
+        if (getLog().isDebugEnabled()) {
+            cmdLine.add("-v");
+        }
 
-		if (warnAll) {
-			cmdLine.add("-Wall");
-		}
-		
-		if (warnError) {
-			cmdLine.add("-Werror");
-		}
+        // FIXME hardcoded
+        cmdLine.add("-java");
 
-		// output file
-		String baseName = FileUtils.basename(source);
-		cmdLine.add("-o");
-		cmdLine.add((new File(targetDirectory, baseName + (cpp ? "cxx" : "c")))
-				.toString());
+        if (cpp) {
+            cmdLine.add("-c++");
+        }
 
-		// package for java code
-		if (packageName != null) {
-			cmdLine.add("-package");
-			cmdLine.add(packageName);
-		}
+        // defines
+        if (defines != null) {
+            for (Iterator i = defines.iterator(); i.hasNext();) {
+                cmdLine.add("-D");
+                cmdLine.add((String) i.next());
+            }
+        }
 
-		// output dir for java code
-		cmdLine.add("-outdir");
-		cmdLine.add(javaTargetDirectory);
+        // warnings
+        if (noWarn != null) {
+            String noWarns[] = noWarn.split(",| ");
+            for (int i = 0; i < noWarns.length; i++) {
+                cmdLine.add("-w" + noWarns[i]);
+            }
+        }
 
-		// user added include dirs
-		if (includePaths != null) {
-			for (Iterator i = includePaths.iterator(); i.hasNext();) {
-				cmdLine.add("-I" + i.next());
-			}
-		}
-		// default include dirs
-		cmdLine.add("-I" + "src/main/include");
-		cmdLine.add("-I" + sourceDirectory);
+        if (warnAll) {
+            cmdLine.add("-Wall");
+        }
 
-		// NAR dependency include dirs
-		List narIncludes = narManager.getNarDependencies("compile");
-		for (Iterator i = narIncludes.iterator(); i.hasNext();) {
-			Artifact narInclude = (Artifact) i.next();
-			File narIncludeDir = new File(narManager.getNarFile(narInclude).getParentFile(), "nar");
-			narIncludeDir = new File(narIncludeDir, "include");
-			if (narIncludeDir.isDirectory()) {
-				cmdLine.add("-I" + narIncludeDir);
-			}
-		}
-		
-		// system swig include dirs
-		if (swigJavaInclude != null)
-			cmdLine.add("-I" + swigJavaInclude.toString());
-		if (swigInclude != null)
-			cmdLine.add("-I" + swigInclude.toString());
+        if (warnError) {
+            cmdLine.add("-Werror");
+        }
 
-		// swig file
-		cmdLine.add(sourceDirectory + source);
+        // output file
+        String baseName = FileUtils.basename(source);
+        cmdLine.add("-o");
+        cmdLine.add((new File(targetDirectory, baseName + (cpp ? "cxx" : "c")))
+                .toString());
 
-		getLog().info(cmdLine.toString());
+        // package for java code
+        if (packageName != null) {
+            cmdLine.add("-package");
+            cmdLine.add(packageName);
+        }
 
-		return (String[]) cmdLine.toArray(new String[cmdLine.size()]);
-	}
+        // output dir for java code
+        cmdLine.add("-outdir");
+        cmdLine.add(javaTargetDirectory);
 
-	private int runCommand(String[] cmdLine) throws MojoExecutionException {
-		try {
-			Runtime runtime = Runtime.getRuntime();
-			Process process = runtime.exec(cmdLine);
-			StreamGobbler errorGobbler = new StreamGobbler(process
-					.getErrorStream(), true);
-			StreamGobbler outputGobbler = new StreamGobbler(process
-					.getInputStream(), false);
+        // user added include dirs
+        if (includePaths != null) {
+            for (Iterator i = includePaths.iterator(); i.hasNext();) {
+                cmdLine.add("-I" + i.next());
+            }
+        }
+        // default include dirs
+        cmdLine.add("-I" + "src/main/include");
+        cmdLine.add("-I" + sourceDirectory);
 
-			errorGobbler.start();
-			outputGobbler.start();
-			return process.waitFor();
-		} catch (Throwable e) {
-			throw new MojoExecutionException("Could not launch " + cmdLine[0],
-					e);
-		}
-	}
+        // NAR dependency include dirs
+        List narIncludes = narManager.getNarDependencies("compile");
+        for (Iterator i = narIncludes.iterator(); i.hasNext();) {
+            Artifact narInclude = (Artifact) i.next();
+            File narIncludeDir = new File(narManager.getNarFile(narInclude)
+                    .getParentFile(), "nar");
+            narIncludeDir = new File(narIncludeDir, "include");
+            if (narIncludeDir.isDirectory()) {
+                cmdLine.add("-I" + narIncludeDir);
+            }
+        }
 
-	class StreamGobbler extends Thread {
-		InputStream is;
+        // system swig include dirs
+        if (swigJavaInclude != null)
+            cmdLine.add("-I" + swigJavaInclude.toString());
+        if (swigInclude != null)
+            cmdLine.add("-I" + swigInclude.toString());
 
-		boolean error;
+        // swig file
+        cmdLine.add(sourceDirectory + source);
 
-		StreamGobbler(InputStream is, boolean error) {
-			this.is = is;
-			this.error = error;
-		}
+        getLog().info(cmdLine.toString());
 
-		public void run() {
-			try {
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(is));
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					if (error) {
-						getLog().error(line);
-					} else {
-						getLog().debug(line);
-					}
-				}
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+        return (String[]) cmdLine.toArray(new String[cmdLine.size()]);
+    }
+
+    private int runCommand(String[] cmdLine) throws MojoExecutionException {
+        try {
+            Runtime runtime = Runtime.getRuntime();
+            Process process = runtime.exec(cmdLine);
+            StreamGobbler errorGobbler = new StreamGobbler(process
+                    .getErrorStream(), true);
+            StreamGobbler outputGobbler = new StreamGobbler(process
+                    .getInputStream(), false);
+
+            errorGobbler.start();
+            outputGobbler.start();
+            return process.waitFor();
+        } catch (Throwable e) {
+            throw new MojoExecutionException("Could not launch " + cmdLine[0],
+                    e);
+        }
+    }
+
+    class StreamGobbler extends Thread {
+        InputStream is;
+
+        boolean error;
+
+        StreamGobbler(InputStream is, boolean error) {
+            this.is = is;
+            this.error = error;
+        }
+
+        public void run() {
+            try {
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(is));
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    if (error) {
+                        getLog().error(line);
+                    } else {
+                        getLog().debug(line);
+                    }
+                }
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
