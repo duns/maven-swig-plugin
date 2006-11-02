@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 423080c09b0f 2006/10/24 16:07:13 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 5112c8ae9cbe 2006/11/02 22:29:15 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -482,8 +482,13 @@ public class SwigMojo extends AbstractMojo {
         // swig file
         cmdLine.add(sourceDirectory + source);
 
-        getLog().info(cmdLine.toString());
-
+        StringBuffer b = new StringBuffer();
+        for (Iterator i=cmdLine.iterator(); i.hasNext(); ) {
+            b.append((String)i.next());
+            if (i.hasNext()) b.append(' ');
+        }
+        getLog().info(b.toString());
+                
         return (String[]) cmdLine.toArray(new String[cmdLine.size()]);
     }
 
