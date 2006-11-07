@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 5112c8ae9cbe 2006/11/02 22:29:15 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 800ec2a9a665 2006/11/07 18:26:36 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -76,6 +76,13 @@ public class SwigMojo extends AbstractMojo {
      */
     private List defines;
 
+    /**
+     * Sets a fake version number, same as -fakeversion for swig.
+     * 
+     * @parameter
+     */
+    private String fakeVersion;
+    
     /**
      * Enable C++ processing, same as -c++ option for swig.
      * 
@@ -400,6 +407,11 @@ public class SwigMojo extends AbstractMojo {
 
         cmdLine.add(swig.toString());
 
+        if (fakeVersion != null) {
+            cmdLine.add("-fakeversion");
+            cmdLine.add(fakeVersion);
+        }
+        
         if (getLog().isDebugEnabled()) {
             cmdLine.add("-v");
         }
