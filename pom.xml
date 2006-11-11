@@ -1,8 +1,8 @@
 <project>
   <parent>
-    <artifactId>maven-plugins</artifactId>
+    <artifactId>maven-plugin-pom</artifactId>
     <groupId>org.freehep</groupId>
-    <version>4-SNAPSHOT</version>
+    <version>4</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.freehep</groupId>
