@@ -30,7 +30,6 @@ import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.StaleSourceScanner;
 import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
 import org.codehaus.plexus.util.FileUtils;
-import org.freehep.maven.nar.AbstractNarMojo;
 import org.freehep.maven.nar.Linker;
 import org.freehep.maven.nar.NarArtifact;
 import org.freehep.maven.nar.NarManager;
@@ -44,7 +43,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 669bfa8eceee 2007/07/24 06:31:31 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 6c74fb55e925 2007/07/24 06:32:36 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -61,13 +60,6 @@ public class SwigMojo extends AbstractMojo {
      * @parameter expression="${swig.force}" default-value="false"
      */
     private boolean force;
-
-    /**
-     * Level of logging messages, 0 is minimum.
-     * 
-     * @parameter expression="${swig.logLevel}" default-value="0"
-     */
-    private int logLevel;
 
     /**
      * Define symbol for conditional compilation, same as -D option for swig.
