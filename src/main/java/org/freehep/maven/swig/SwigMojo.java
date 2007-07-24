@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java dfe42d77dda2 2006/11/21 22:14:25 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 669bfa8eceee 2007/07/24 06:31:31 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -276,7 +276,7 @@ public class SwigMojo extends AbstractMojo {
         os = NarUtil.getOS(os);
         // FIXME, should have some function in NarUtil
         Linker linker = new Linker("g++");
-        narManager = new NarManager(getLog(), logLevel, localRepository,
+        narManager = new NarManager(getLog(), localRepository,
                 project, architecture, os, linker);
 
         targetDirectory = new File(targetDirectory, cpp ? "c++" : "c");
