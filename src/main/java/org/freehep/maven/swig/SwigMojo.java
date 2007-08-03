@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java c879ccfa33ef 2007/08/01 16:47:40 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 25a929cd9f7b 2007/08/03 05:24:47 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -134,6 +134,18 @@ public class SwigMojo extends AbstractMojo {
 	 */
 	private String javaTargetDirectory;
 
+	/**
+	 * Remove all files from the output directory. The output directory
+	 * is formed by ${javaTargetDirectory}/${packageName}. This 
+	 * setting is ignored (false) if no packageName is supplied.
+	 * All files are deleted from the output directory just before 
+	 * the swig command is run. This allows the user to configure to
+	 * have the java files of the swig command in the src driectory tree.
+	 * 
+	 * @parameter expression="false"
+	 */
+	private boolean cleanOutputDirectory;
+	
 	/**
 	 * The directory to look for swig files and swig include files. Also added
 	 * to -I flag when swig is run.
@@ -287,6 +299,14 @@ public class SwigMojo extends AbstractMojo {
                 javaTargetDirectory = javaTargetDirectory + "/";
             }
             javaTargetDirectory += packageName.replace('.', File.separatorChar);
+            
+            if (cleanOutputDirectory && FileUtils.fileExists(javaTargetDirectory)) {
+            	try {
+            	    FileUtils.cleanDirectory(javaTargetDirectory);
+            	} catch (IOException e) {
+            		// ignored
+            	}
+            }
         }
 
         if (!FileUtils.fileExists(javaTargetDirectory)) {
