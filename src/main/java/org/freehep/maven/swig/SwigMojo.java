@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 25a929cd9f7b 2007/08/03 05:24:47 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java ab44dded0bf4 2007/08/15 19:12:40 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -298,15 +298,7 @@ public class SwigMojo extends AbstractMojo {
             if (!javaTargetDirectory.endsWith("/")) {
                 javaTargetDirectory = javaTargetDirectory + "/";
             }
-            javaTargetDirectory += packageName.replace('.', File.separatorChar);
-            
-            if (cleanOutputDirectory && FileUtils.fileExists(javaTargetDirectory)) {
-            	try {
-            	    FileUtils.cleanDirectory(javaTargetDirectory);
-            	} catch (IOException e) {
-            		// ignored
-            	}
-            }
+            javaTargetDirectory += packageName.replace('.', File.separatorChar);            
         }
 
         if (!FileUtils.fileExists(javaTargetDirectory)) {
@@ -388,6 +380,15 @@ public class SwigMojo extends AbstractMojo {
             Set files = scanner.getIncludedSources(sourceFile, targetFile);
 
             if (!files.isEmpty() || force) {
+                if (cleanOutputDirectory && (packageName != null) && FileUtils.fileExists(javaTargetDirectory)) {
+                	try {
+                        getLog().info("Cleaning "+javaTargetDirectory);
+                	    FileUtils.cleanDirectory(javaTargetDirectory);
+                	} catch (IOException e) {
+                		// ignored
+                	}
+                }
+            	
                 getLog().info(
                         (force ? "FORCE " : "") + "Running SWIG compiler on "
                                 + source + " ...");
