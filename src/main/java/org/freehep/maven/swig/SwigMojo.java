@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java ab44dded0bf4 2007/08/15 19:12:40 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 7d6fd78e9fb8 2007/08/20 22:15:27 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -135,12 +135,12 @@ public class SwigMojo extends AbstractMojo {
 	private String javaTargetDirectory;
 
 	/**
-	 * Remove all files from the output directory. The output directory
+	 * Remove all *.java files from the output directory. The output directory
 	 * is formed by ${javaTargetDirectory}/${packageName}. This 
 	 * setting is ignored (false) if no packageName is supplied.
-	 * All files are deleted from the output directory just before 
+	 * All *.java are deleted from the output directory just before 
 	 * the swig command is run. This allows the user to configure to
-	 * have the java files of the swig command in the src driectory tree.
+	 * have the java files of the swig command in the src directory tree.
 	 * 
 	 * @parameter expression="false"
 	 */
@@ -381,12 +381,12 @@ public class SwigMojo extends AbstractMojo {
 
             if (!files.isEmpty() || force) {
                 if (cleanOutputDirectory && (packageName != null) && FileUtils.fileExists(javaTargetDirectory)) {
-                	try {
-                        getLog().info("Cleaning "+javaTargetDirectory);
-                	    FileUtils.cleanDirectory(javaTargetDirectory);
-                	} catch (IOException e) {
-                		// ignored
-                	}
+                    getLog().info("Cleaning "+javaTargetDirectory);
+                    String[] filesToRemove = FileUtils.getFilesFromExtension(javaTargetDirectory, new String[] { "java" });
+                    for (int i=0; i<filesToRemove.length; i++) {
+                    	File f = new File(filesToRemove[i]);
+                    	f.delete();
+                    }
                 }
             	
                 getLog().info(
