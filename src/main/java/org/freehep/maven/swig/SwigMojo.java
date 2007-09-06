@@ -44,7 +44,7 @@ import org.freehep.maven.nar.NarUtil;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  * @author <a href="Mark.Donszelmann@slac.stanford.edu">Mark Donszelmann</a>
- * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 1a2681a829d6 2007/09/06 17:42:28 duns $
+ * @version $Id: src/main/java/org/freehep/maven/swig/SwigMojo.java 8b782901bb24 2007/09/06 18:28:46 duns $
  */
 public class SwigMojo extends AbstractMojo {
 
@@ -126,6 +126,13 @@ public class SwigMojo extends AbstractMojo {
 	 */
 	private String packageName;
 
+	/**
+	 * The output filename. Defaults to ${source}.cpp or .c depending on cpp option.
+	 * 
+	 * @parameter
+	 */
+	private String outFile;
+	
 	/**
 	 * The target directory into which to generate the java output, becomes
 	 * -outdir option for swig.
@@ -464,8 +471,8 @@ public class SwigMojo extends AbstractMojo {
 		// output file
 		String baseName = FileUtils.basename(source);
 		cmdLine.add("-o");
-		cmdLine.add((new File(targetDirectory, baseName + (cpp ? "cxx" : "c")))
-				.toString());
+		File outputFile = outFile != null ? new File(targetDirectory, outFile) : new File(targetDirectory, baseName + (cpp ? "cxx" : "c"));
+		cmdLine.add(outputFile.toString());
 
 		// package for java code
 		if (packageName != null) {
