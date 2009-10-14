@@ -1,5 +1,5 @@
 	---
-FreeHEP SWIG Plugin
+Maven SWIG Plugin
 	---
 	---
 Mark Donszelmann
@@ -11,7 +11,7 @@ Introduction
 generates java and c++/c wrapper code. 
 
 	The swig executable to run on your platform is downloaded as a NAR file (see 
-{{{http://java.freehep.org/freehep-nar-plugin}FreeHEP NAR Plugin}} for details 
+{{{http://duns.github.com/maven-nar-plugin}Maven NAR Plugin}} for details 
 on the format). This NAR file includes the binary executable for swig and
 the include directories for running it. With the \<groupId\>, \<artifactId\>
 and \<version\> tags you can override this behaviour to use a newer or other
