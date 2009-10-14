@@ -1,0 +1,326 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+
+
+
+
+
+
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>maven-swig-plugin - Project Build Plugins</title>
+    <style type="text/css" media="all">
+      @import url("./css/maven-base.css");
+      @import url("./css/maven-theme.css");
+      @import url("./css/site.css");
+    </style>
+    <link rel="stylesheet" href="./css/print.css" type="text/css" media="print" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                                                    
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script>
+                                                        
+<script type="text/javascript">_uacct = "UA-140879-1";
+        urchinTracker();</script>
+                    </head>
+  <body class="composite">
+    <div id="banner">
+                  <a href="" id="bannerLeft">
+    
+                                    <img src="http://maven.apache.org/images/apache-maven-project-2.png" alt="" />
+    
+            </a>
+                        <a href="http://maven.apache.org/" id="bannerRight">
+    
+                                    <img src="http://maven.apache.org/images/maven-logo-2.gif" alt="" />
+    
+            </a>
+            <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="breadcrumbs">
+          
+  
+
+  
+    
+            
+  
+    
+            <div class="xleft">
+          
+                <a href="http://www.apache.org/" class="externalLink">Apache</a>
+                &gt;
+      
+                <a href="http://maven.apache.org/index.html" class="externalLink">Maven</a>
+                &gt;
+      
+                <a href="http://maven.apache.org/plugins/index.html" class="externalLink">Plugins</a>
+                &gt;
+      
+                <a href="http://duns.github.com/maven-swig-plugin/" class="externalLink">Maven SWIG Plugin</a>
+                  </div>
+            <div class="xright">            <a href="../maven-nar-plugin">NAR Plugin</a>
+            |
+                <a href="http://maven.apache.org/" class="externalLink">Maven</a>
+            
+  
+
+  
+    
+            
+  
+    
+            &nbsp;| Last Published: 2009-10-14
+              &nbsp;| Version: 1.3.40-1-SNAPSHOT
+            </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    <div id="leftColumn">
+      <div id="navcolumn">
+           
+  
+
+  
+    
+            
+  
+    
+                   <h5>Overview</h5>
+            <ul>
+              
+    <li class="none">
+                    <a href="index.html">Introduction</a>
+          </li>
+              
+    <li class="none">
+                    <a href="plugin-info.html">Goals</a>
+          </li>
+              
+    <li class="none">
+                    <a href="usage.html">Usage</a>
+          </li>
+              
+    <li class="none">
+                    <a href="https://issues.sonatype.org/browse/NAR" class="externalLink">Bug Reports</a>
+          </li>
+          </ul>
+                        <h5>Project Documentation</h5>
+            <ul>
+              
+                
+              
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+      
+            
+            
+            
+      
+            
+      
+            
+      
+              
+            <li class="expanded">
+                    <a href="project-info.html">Project Information</a>
+                  <ul>
+                  
+    <li class="none">
+                    <a href="index.html">About</a>
+          </li>
+                  
+    <li class="none">
+                    <a href="integration.html">Continuous Integration</a>
+          </li>
+                  
+    <li class="none">
+                    <a href="dependencies.html">Dependencies</a>
+          </li>
+                  
+    <li class="none">
+                    <a href="issue-tracking.html">Issue Tracking</a>
+          </li>
+                  
+    <li class="none">
+                    <a href="mail-lists.html">Mailing Lists</a>
+          </li>
+                  
+    <li class="none">
+                    <a href="plugin-management.html">Plugin Management</a>
+          </li>
+                  
+    <li class="none">
+                    <a href="license.html">Project License</a>
+          </li>
+                  
+    <li class="none">
+              <strong>Project Plugins</strong>
+        </li>
+                  
+    <li class="none">
+                    <a href="project-summary.html">Project Summary</a>
+          </li>
+                  
+    <li class="none">
+                    <a href="team-list.html">Project Team</a>
+          </li>
+                  
+    <li class="none">
+                    <a href="source-repository.html">Source Repository</a>
+          </li>
+              </ul>
+        </li>
+              
+                
+              
+      
+            
+      
+              
+        <li class="collapsed">
+                    <a href="project-reports.html">Project Reports</a>
+                </li>
+          </ul>
+              <h5>Maven Projects</h5>
+            <ul>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/ant-tasks/index.html" class="externalLink">Ant Tasks</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/doxia/index.html" class="externalLink">Doxia</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/jxr/index.html" class="externalLink">JXR</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/maven-1.x/index.html" class="externalLink">Maven 1.x</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/index.html" class="externalLink">Maven 2</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/mercury/index.html" class="externalLink">Mercury</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/plugins/index.html" class="externalLink">Plugins</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/scm/index.html" class="externalLink">SCM</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/shared/index.html" class="externalLink">Shared Components</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/surefire/index.html" class="externalLink">Surefire</a>
+          </li>
+              
+    <li class="none">
+                    <a href="http://maven.apache.org/wagon/index.html" class="externalLink">Wagon</a>
+          </li>
+          </ul>
+                                           <a href="http://maven.apache.org/" title="Built by Maven" class="poweredBy">
+            <img alt="Built by Maven" src="./images/logos/maven-feather.png"></img>
+          </a>
+                       
+  
+
+  
+    
+            
+  
+    
+        </div>
+    </div>
+    <div id="bodyColumn">
+      <div id="contentBox">
+        <div class="section"><h2>Project Build Plugins</h2>
+<table class="bodyTable"><tr class="a"><th>GroupId</th>
+<th>ArtifactId</th>
+<th>Version</th>
+</tr>
+<tr class="b"><td>org.apache.maven.plugins</td>
+<td><a href="http://maven.apache.org/plugins/maven-enforcer-plugin/" class="externalLink">maven-enforcer-plugin</a></td>
+<td>1.0-beta-1</td>
+</tr>
+<tr class="a"><td>org.apache.maven.plugins</td>
+<td><a href="http://maven.apache.org/plugins/maven-plugin-plugin" class="externalLink">maven-plugin-plugin</a></td>
+<td>2.5</td>
+</tr>
+<tr class="b"><td>org.apache.maven.plugins</td>
+<td><a href="http://maven.apache.org/plugins/maven-remote-resources-plugin" class="externalLink">maven-remote-resources-plugin</a></td>
+<td>1.0</td>
+</tr>
+</table>
+</div>
+<div class="section"><h2>Project Report Plugins</h2>
+<table class="bodyTable"><tr class="a"><th>GroupId</th>
+<th>ArtifactId</th>
+<th>Version</th>
+</tr>
+<tr class="b"><td>org.apache.maven.plugins</td>
+<td><a href="http://maven.apache.org/plugins/maven-javadoc-plugin" class="externalLink">maven-javadoc-plugin</a></td>
+<td>2.6</td>
+</tr>
+<tr class="a"><td>org.apache.maven.plugins</td>
+<td><a href="http://maven.apache.org/plugins/maven-plugin-plugin" class="externalLink">maven-plugin-plugin</a></td>
+<td>2.5</td>
+</tr>
+<tr class="b"><td>org.apache.maven.plugins</td>
+<td><a href="http://maven.apache.org/plugins/maven-project-info-reports-plugin" class="externalLink">maven-project-info-reports-plugin</a></td>
+<td>2.1.1</td>
+</tr>
+</table>
+</div>
+
+      </div>
+    </div>
+    <div class="clear">
+      <hr/>
+    </div>
+    <div id="footer">
+      <div class="xright">&#169;  
+          2002-2009
+    
+          The Apache Software Foundation
+          
+  
+
+  
+    
+            
+  
+    
+   - <a href="http://maven.apache.org/privacy-policy.html">Privacy Policy</a></div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+  </body>
+</html>
