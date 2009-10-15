@@ -226,7 +226,7 @@ public class SwigMojo
     /**
      * ArtifactId for the swig NAR
      * 
-     * @parameter expression="${swig.artifactId}" default-value="swig"
+     * @parameter expression="${swig.artifactId}" default-value="nar-swig"
      */
     private String artifactId;
 
