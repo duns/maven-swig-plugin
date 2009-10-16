@@ -41,6 +41,11 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.nar.Linker;
+import org.apache.maven.plugin.nar.NarArtifact;
+import org.apache.maven.plugin.nar.NarInfo;
+import org.apache.maven.plugin.nar.NarManager;
+import org.apache.maven.plugin.nar.NarUtil;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
@@ -48,11 +53,6 @@ import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.StaleSourceScanner;
 import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
 import org.codehaus.plexus.util.FileUtils;
-import org.apache.maven.plugin.nar.Linker;
-import org.apache.maven.plugin.nar.NarArtifact;
-import org.apache.maven.plugin.nar.NarInfo;
-import org.apache.maven.plugin.nar.NarManager;
-import org.apache.maven.plugin.nar.NarUtil;
 
 /**
  * Compiles swg files using the swig compiler.
@@ -233,7 +233,7 @@ public class SwigMojo
     /**
      * Version for the swig NAR
      * 
-     * @parameter expression="${swig.version}" default-value="1.3.40-1"
+     * @parameter expression="${swig.version}" default-value="1.3.40-1-SNAPSHOT"
      */
     private String version;
 
@@ -297,6 +297,18 @@ public class SwigMojo
             return;
         }
 
+        if ( !sourceDirectory.endsWith( "/" ) )
+        {
+            sourceDirectory = sourceDirectory + "/";
+        }
+        File sourceDir = new File( sourceDirectory );
+        File sourceFile = new File( sourceDir, source );
+        if ( !sourceDir.exists() || !sourceFile.exists() )
+        {
+            getLog().info( "No SWIG sources found" );
+            return;
+        }
+
         os = NarUtil.getOS( os );
         // FIXME, should have some function in NarUtil
         Linker linker = new Linker( "g++" );
@@ -328,11 +340,6 @@ public class SwigMojo
             FileUtils.mkdir( javaTargetDirectory );
         }
 
-        if ( !sourceDirectory.endsWith( "/" ) )
-        {
-            sourceDirectory = sourceDirectory + "/";
-        }
-
         // make sure all NAR dependencies are downloaded and unpacked
         // even if packaging is NOT nar
         // in nar packaging, downloading happens in generate-sources phase and
@@ -347,10 +354,8 @@ public class SwigMojo
         if ( exec == null )
         {
             // NOTE, since a project will just load this as a plugin, there is
-            // no way to look up
-            // the org.swig:swig dependency, so we hardcode that in here, but it
-            // is configurable
-            // in the configuration part of this plugin.
+            // no way to look up the org.swig:nar-swig dependency, so we hardcode
+            // that in here, but it is configurable in the configuration part of this plugin.
             Artifact swigJar =
                 new DefaultArtifact( groupId, artifactId, VersionRange.createFromVersion( version ), "compile", "jar",
                                      "", artifactHandler );
@@ -376,7 +381,7 @@ public class SwigMojo
             getLog().debug( info.toString() );
             NarArtifact swigNar = new NarArtifact( swigJar, info );
 
-            // download attached nars
+            // download attached nars, in which the executable and the include files sit
             List swigNarArtifacts = new ArrayList();
             swigNarArtifacts.add( swigNar );
             narManager.downloadAttachedNars( swigNarArtifacts, remoteArtifactRepositories, artifactResolver, null );
@@ -386,7 +391,7 @@ public class SwigMojo
             swigInclude = new File( swig, "include" );
             swigJavaInclude = new File( swigInclude, "java" );
             swig = new File( swig, "bin" );
-            swig = new File( swig, NarUtil.getAOLKey( architecture, os, linker ) );
+            swig = new File( swig, NarUtil.getAOL( architecture, os, linker, null ).toString() );
             swig = new File( swig, "swig" );
         }
         else
@@ -396,15 +401,15 @@ public class SwigMojo
             swigJavaInclude = null;
         }
 
-        File sourceFile = new File( sourceDirectory );
         File targetFile = targetDirectory;
         SourceInclusionScanner scanner =
             new StaleSourceScanner( staleMillis, Collections.singleton( source ), Collections.EMPTY_SET );
-        SuffixMapping mapping = new SuffixMapping( ".swg", ".flag" );
+        String extension = "." + FileUtils.getExtension( source );
+        SuffixMapping mapping = new SuffixMapping( extension, extension + ".flag" );
         scanner.addSourceMapping( mapping );
         try
         {
-            Set files = scanner.getIncludedSources( sourceFile, targetFile );
+            Set files = scanner.getIncludedSources( sourceDir, targetFile );
 
             if ( !files.isEmpty() || force )
             {
@@ -426,7 +431,7 @@ public class SwigMojo
                 {
                     throw new MojoFailureException( "SWIG returned error code " + error );
                 }
-                File flagFile = new File( targetDirectory, FileUtils.basename( source, ".swg" ) + ".flag" );
+                File flagFile = new File( targetDirectory, source + ".flag" );
                 FileUtils.fileDelete( flagFile.getPath() );
                 FileUtils.fileWrite( flagFile.getPath(), "" );
             }
