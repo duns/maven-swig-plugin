@@ -310,8 +310,8 @@ public class SwigMojo
         }
 
         os = NarUtil.getOS( os );
-        // FIXME, should have some function in NarUtil
-        Linker linker = new Linker( "g++" );
+
+        Linker linker = new Linker(NarUtil.getLinkerName( architecture, os, null ));
         narManager = new NarManager( getLog(), localRepository, project, architecture, os, linker );
 
         targetDirectory = new File( targetDirectory, cpp ? "c++" : "c" );
