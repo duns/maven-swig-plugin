@@ -29,13 +29,13 @@ under the License.
     <relativePath>../it-parent/pom.xml</relativePath>
   </parent>
   
-  <artifactId>it0001-simple</artifactId>
+  <artifactId>it0002-class</artifactId>
   <packaging>nar</packaging>
   
-  <name>Maven SWIG simple</name>
+  <name>Maven SWIG class</name>
   <version>1.0-SNAPSHOT</version>
   <description>
-    Simple example
+    Class example
   </description>
   <url>http://maven.apache.org/</url>
 
@@ -55,9 +55,10 @@ under the License.
               <goal>generate</goal>
             </goals>
             <configuration>
+              <cpp>true</cpp>
               <packageName>org.apache.maven.its.swig</packageName>
               <source>example.i</source>
-              <outFile>exampleJNI.c</outFile>
+              <outFile>exampleJNI.cxx</outFile>
             </configuration>
           </execution>
         </executions>
