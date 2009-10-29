@@ -35,6 +35,7 @@ under the License.
       <item name="Goals" href="plugin-info.html"/>
       <item name="Usage" href="usage.html"/>
       <item name="FAQ"   href="faq.html"/>
+      <item name="Examples"   href="examples.html"/>
       <item name="Bug Reports" href="https://issues.sonatype.org/browse/NAR"/>
     </menu>
 
