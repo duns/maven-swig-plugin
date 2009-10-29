@@ -1,0 +1,23 @@
+	---
+Maven SWIG Plugin
+	---
+	---
+Mark Donszelmann
+	---
+	
+Examples
+
+	Some examples are available in the src/it directory. These examples are taken from 
+the swig distribution and converted to compile and run using maven.
+
+	The following examples are available:
+
+  	[it0001-simple] Access from java to C.
+  
+  	[it0002-class] Acess from java to C++.
+
+	[]
+
+	These examples are now all run as integration tests by running maven on the maven-swig-plugin from its top-level directory with the profile "run-its".
+
+
