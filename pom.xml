@@ -35,8 +35,18 @@
   </description>
   <url>http://duns.github.com/maven-swig-plugin/</url>
 
-  <!-- temporarily until we have a fixed site -->
   <distributionManagement>
+    <repository>
+      <id>duns-maven-releases</id>
+      <name>Duns' Maven Releases</name>
+      <url>file:///Users/duns/sonatype/git/maven-releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>duns-maven-snapshots</id>
+      <name>Duns' Maven Snapshots</name>
+      <url>file:///Users/duns/sonatype/git/maven-snapshots</url>
+    </snapshotRepository>
+  <!-- temporarily until we have a fixed site -->
     <site>
       <id>local</id>
       <url>file:///Users/duns/sonatype/git/maven-swig-plugin-site</url>
