@@ -288,7 +288,7 @@ public class SwigMojo
 
     private NarManager narManager;
 
-    public void execute()
+    public final void execute()
         throws MojoExecutionException, MojoFailureException
     {
         if ( skip )
@@ -311,7 +311,7 @@ public class SwigMojo
 
         os = NarUtil.getOS( os );
 
-        Linker linker = new Linker(NarUtil.getLinkerName( architecture, os, null ));
+        Linker linker = new Linker( NarUtil.getLinkerName( architecture, os, null ) );
         narManager = new NarManager( getLog(), localRepository, project, architecture, os, linker );
 
         targetDirectory = new File( targetDirectory, cpp ? "c++" : "c" );
@@ -552,9 +552,13 @@ public class SwigMojo
 
         // system swig include dirs
         if ( swigJavaInclude != null )
+        {
             cmdLine.add( "-I" + swigJavaInclude.toString() );
+        }
         if ( swigInclude != null )
+        {
             cmdLine.add( "-I" + swigInclude.toString() );
+        }
 
         // swig file
         cmdLine.add( sourceDirectory + source );
@@ -564,7 +568,9 @@ public class SwigMojo
         {
             b.append( (String) i.next() );
             if ( i.hasNext() )
+            {
                 b.append( ' ' );
+            }
         }
         getLog().info( b.toString() );
 
@@ -576,6 +582,8 @@ public class SwigMojo
     {
         try
         {
+            final int timeout = 5000;
+            
             Runtime runtime = Runtime.getRuntime();
             Process process = runtime.exec( cmdLine );
             StreamGobbler errorGobbler = new StreamGobbler( process.getErrorStream(), true );
@@ -583,20 +591,23 @@ public class SwigMojo
 
             errorGobbler.start();
             outputGobbler.start();
-            return process.waitFor();
+            process.waitFor();
+            errorGobbler.join( timeout );
+            outputGobbler.join( timeout );
+            return process.exitValue();
         }
-        catch ( Throwable e )
+        catch ( Exception e )
         {
             throw new MojoExecutionException( "Could not launch " + cmdLine[0], e );
         }
     }
 
-    class StreamGobbler
+    private class StreamGobbler
         extends Thread
     {
-        InputStream is;
+        private InputStream is;
 
-        boolean error;
+        private boolean error;
 
         StreamGobbler( InputStream is, boolean error )
         {
@@ -625,7 +636,7 @@ public class SwigMojo
             }
             catch ( IOException e )
             {
-                e.printStackTrace();
+                getLog().error(e);
             }
         }
     }
