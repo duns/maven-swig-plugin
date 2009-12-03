@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -236,7 +235,7 @@ public class SwigMojo
     /**
      * Version for the swig NAR
      * 
-     * @parameter expression="${swig.version}" default-value="1.3.40-1-SNAPSHOT"
+     * @parameter expression="${swig.version}"
      */
     private String version;
 
@@ -361,6 +360,12 @@ public class SwigMojo
             // NOTE, since a project will just load this as a plugin, there is
             // no way to look up the org.swig:nar-swig dependency, so we hardcode
             // that in here, but it is configurable in the configuration part of this plugin.
+            
+            // if version not specified use maven-swig-plugin version
+            if (version == null) {
+                Plugin swigPlugin = (Plugin)project.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-swig-plugin" );
+                version = swigPlugin.getVersion();
+            }
             Artifact swigJar =
                 new DefaultArtifact( groupId, artifactId, VersionRange.createFromVersion( version ), "compile", "jar",
                                      "", artifactHandler );
@@ -476,7 +481,6 @@ public class SwigMojo
         Xpp3Dom narConfig = new Xpp3Dom( "configuration" );
         narPlugin.setConfiguration( narConfig );
 
-        
         // set type to jni and generate NarSystem
         Xpp3Dom libraries = new Xpp3Dom( "libraries" );
         narConfig.addChild( libraries );
@@ -492,7 +496,6 @@ public class SwigMojo
         narSystemPackage.setValue( packageName );
         library.addChild( narSystemPackage );
 
-        
         // include and link with java
         Xpp3Dom java = new Xpp3Dom( "java" );
         narConfig.addChild( java );
@@ -508,13 +511,12 @@ public class SwigMojo
         Xpp3Dom javah = new Xpp3Dom( "javah" );
         narConfig.addChild( javah );
 
-        
         // do not run javah
         Xpp3Dom excludes = new Xpp3Dom( "excludes" );
         javah.addChild( excludes );
 
         Xpp3Dom exclude = new Xpp3Dom( "exclude" );
-        exclude.setValue( packageName.replace( '.', File.separatorChar ) + File.separatorChar+ "*.class" );
+        exclude.setValue( packageName.replace( '.', File.separatorChar ) + File.separatorChar + "*.class" );
         excludes.addChild( exclude );
     }
 
