@@ -61,27 +61,10 @@ under the License.
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin>  
       <plugin>
         <artifactId>maven-nar-plugin</artifactId>
         <extensions>true</extensions>
-        <configuration>
-          <libraries>
-            <library>
-              <type>jni</type>
-              <narSystemPackage>org.apache.maven.its.swig</narSystemPackage>
-            </library>
-          </libraries>
-          <java>
-            <include>true</include>
-            <link>true</link>
-          </java>
-          <javah>
-            <excludes>
-              <exclude>**/ExampleJNI.class</exclude>
-            </excludes>
-          </javah>
-        </configuration>
       </plugin>
     </plugins>
   </build>

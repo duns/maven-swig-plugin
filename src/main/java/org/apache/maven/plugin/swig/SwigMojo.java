@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -38,6 +39,7 @@ import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -53,6 +55,7 @@ import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.StaleSourceScanner;
 import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
  * Compiles swg files using the swig compiler.
@@ -297,6 +300,8 @@ public class SwigMojo
             return;
         }
 
+        configureNarPlugin();
+
         if ( !sourceDirectory.endsWith( "/" ) )
         {
             sourceDirectory = sourceDirectory + "/";
@@ -450,6 +455,69 @@ public class SwigMojo
         }
     }
 
+    private void configureNarPlugin()
+        throws MojoExecutionException, MojoFailureException
+    {
+        // configure NAR plugin
+        Plugin narPlugin =
+            (Plugin) project.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-nar-plugin" );
+        if ( narPlugin == null )
+        {
+            return;
+        }
+        if ( narPlugin.getConfiguration() != null )
+        {
+            throw new MojoExecutionException(
+                                              "Please configure maven-nar-plugin without <configuration> element, so that the maven-swig-plugin can configure it" );
+        }
+
+        getLog().info( "Configuring maven-nar-plugin to create jni library" );
+
+        Xpp3Dom narConfig = new Xpp3Dom( "configuration" );
+        narPlugin.setConfiguration( narConfig );
+
+        
+        // set type to jni and generate NarSystem
+        Xpp3Dom libraries = new Xpp3Dom( "libraries" );
+        narConfig.addChild( libraries );
+
+        Xpp3Dom library = new Xpp3Dom( "library" );
+        libraries.addChild( library );
+
+        Xpp3Dom type = new Xpp3Dom( "type" );
+        type.setValue( "jni" );
+        library.addChild( type );
+
+        Xpp3Dom narSystemPackage = new Xpp3Dom( "narSystemPackage" );
+        narSystemPackage.setValue( packageName );
+        library.addChild( narSystemPackage );
+
+        
+        // include and link with java
+        Xpp3Dom java = new Xpp3Dom( "java" );
+        narConfig.addChild( java );
+
+        Xpp3Dom include = new Xpp3Dom( "include" );
+        include.setValue( "true" );
+        java.addChild( include );
+
+        Xpp3Dom link = new Xpp3Dom( "link" );
+        link.setValue( "true" );
+        java.addChild( link );
+
+        Xpp3Dom javah = new Xpp3Dom( "javah" );
+        narConfig.addChild( javah );
+
+        
+        // do not run javah
+        Xpp3Dom excludes = new Xpp3Dom( "excludes" );
+        javah.addChild( excludes );
+
+        Xpp3Dom exclude = new Xpp3Dom( "exclude" );
+        exclude.setValue( packageName.replace( '.', File.separatorChar ) + File.separatorChar+ "*.class" );
+        excludes.addChild( exclude );
+    }
+
     private String[] generateCommandLine( File swig, File swigInclude, File swigJavaInclude )
         throws MojoExecutionException, MojoFailureException
     {
@@ -583,7 +651,7 @@ public class SwigMojo
         try
         {
             final int timeout = 5000;
-            
+
             Runtime runtime = Runtime.getRuntime();
             Process process = runtime.exec( cmdLine );
             StreamGobbler errorGobbler = new StreamGobbler( process.getErrorStream(), true );
@@ -636,7 +704,7 @@ public class SwigMojo
             }
             catch ( IOException e )
             {
-                getLog().error(e);
+                getLog().error( e );
             }
         }
     }
