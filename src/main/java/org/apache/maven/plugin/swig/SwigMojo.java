@@ -42,9 +42,11 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.nar.AbstractNarLayout;
 import org.apache.maven.plugin.nar.Linker;
 import org.apache.maven.plugin.nar.NarArtifact;
 import org.apache.maven.plugin.nar.NarInfo;
+import org.apache.maven.plugin.nar.NarLayout;
 import org.apache.maven.plugin.nar.NarManager;
 import org.apache.maven.plugin.nar.NarUtil;
 import org.apache.maven.project.MavenProject;
@@ -138,6 +140,13 @@ public class SwigMojo
      * @parameter expression="${project.build.directory}/swig"
      */
     private File targetDirectory;
+
+    /**
+     * The unpack directory into which to unpack the swig executable.
+     * 
+     * @parameter expression="${project.build.directory}/nar/dependencies"
+     */
+    private File unpackDirectory;
 
     /**
      * The package name for the generated java files (fully qualified ex: org.apache.maven.jni).
@@ -350,9 +359,10 @@ public class SwigMojo
         // thus may be too late
         // unpacking happens in process-sources which is definitely too late
         // so we need to handle this here ourselves.
+        NarLayout layout = AbstractNarLayout.getLayout( "NarLayout21", getLog() );
         List narArtifacts = narManager.getNarDependencies( "compile" );
         narManager.downloadAttachedNars( narArtifacts, remoteArtifactRepositories, artifactResolver, null );
-        narManager.unpackAttachedNars( narArtifacts, archiverManager, null, os );
+        narManager.unpackAttachedNars( narArtifacts, archiverManager, null, os, layout, unpackDirectory );
 
         File swig, swigInclude, swigJavaInclude;
         if ( exec == null )
@@ -360,10 +370,12 @@ public class SwigMojo
             // NOTE, since a project will just load this as a plugin, there is
             // no way to look up the org.swig:nar-swig dependency, so we hardcode
             // that in here, but it is configurable in the configuration part of this plugin.
-            
+
             // if version not specified use maven-swig-plugin version
-            if (version == null) {
-                Plugin swigPlugin = (Plugin)project.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-swig-plugin" );
+            if ( version == null )
+            {
+                Plugin swigPlugin =
+                    (Plugin) project.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-swig-plugin" );
                 version = swigPlugin.getVersion();
             }
             Artifact swigJar =
@@ -395,14 +407,13 @@ public class SwigMojo
             List swigNarArtifacts = new ArrayList();
             swigNarArtifacts.add( swigNar );
             narManager.downloadAttachedNars( swigNarArtifacts, remoteArtifactRepositories, artifactResolver, null );
-            narManager.unpackAttachedNars( swigNarArtifacts, archiverManager, null, os );
+            narManager.unpackAttachedNars( swigNarArtifacts, archiverManager, null, os, layout, unpackDirectory );
 
-            swig = new File( narManager.getNarFile( swigNar ).getParentFile(), "nar" );
-            swigInclude = new File( swig, "include" );
+            swigInclude = layout.getIncludeDirectory( unpackDirectory, swigJar.getArtifactId(), swigJar.getVersion() );
             swigJavaInclude = new File( swigInclude, "java" );
-            swig = new File( swig, "bin" );
-            swig = new File( swig, NarUtil.getAOL( architecture, os, linker, null ).toString() );
-            swig = new File( swig, "swig" );
+            swig =
+                new File( layout.getBinDirectory( unpackDirectory, swigJar.getArtifactId(), swigJar.getVersion(),
+                                                  NarUtil.getAOL( architecture, os, linker, null ).toString() ), "swig" );
         }
         else
         {
