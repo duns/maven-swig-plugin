@@ -58,3 +58,6 @@ to <<<src/main/java>>>.
 
 	Warnings can be suppressed by adding them (as numbers) to the list in the
 \<noWarn\> tag.
+
+	The maven-archetype-nar-swig archetype will create a simple swig project.
+
