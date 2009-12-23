@@ -249,6 +249,14 @@ public class SwigMojo
     private String version;
 
     /**
+     * Layout to be used for building and unpacking artifacts
+     * 
+     * @parameter expression="${nar.layout}" default-value="org.apache.maven.plugin.nar.NarLayout21"
+     * @required
+     */
+    private String layout;
+
+    /**
      * @parameter expression="${project}"
      * @required
      * @readonly
@@ -359,10 +367,10 @@ public class SwigMojo
         // thus may be too late
         // unpacking happens in process-sources which is definitely too late
         // so we need to handle this here ourselves.
-        NarLayout layout = AbstractNarLayout.getLayout( "NarLayout21", getLog() );
+        NarLayout narLayout = AbstractNarLayout.getLayout( layout, getLog() );
         List narArtifacts = narManager.getNarDependencies( "compile" );
         narManager.downloadAttachedNars( narArtifacts, remoteArtifactRepositories, artifactResolver, null );
-        narManager.unpackAttachedNars( narArtifacts, archiverManager, null, os, layout, unpackDirectory );
+        narManager.unpackAttachedNars( narArtifacts, archiverManager, null, os, narLayout, unpackDirectory );
 
         File swig, swigInclude, swigJavaInclude;
         if ( exec == null )
@@ -407,13 +415,15 @@ public class SwigMojo
             List swigNarArtifacts = new ArrayList();
             swigNarArtifacts.add( swigNar );
             narManager.downloadAttachedNars( swigNarArtifacts, remoteArtifactRepositories, artifactResolver, null );
-            narManager.unpackAttachedNars( swigNarArtifacts, archiverManager, null, os, layout, unpackDirectory );
+            narManager.unpackAttachedNars( swigNarArtifacts, archiverManager, null, os, narLayout, unpackDirectory );
 
-            swigInclude = layout.getIncludeDirectory( unpackDirectory, swigJar.getArtifactId(), swigJar.getVersion() );
+            swigInclude =
+                narLayout.getIncludeDirectory( unpackDirectory, swigJar.getArtifactId(), swigJar.getVersion() );
             swigJavaInclude = new File( swigInclude, "java" );
             swig =
-                new File( layout.getBinDirectory( unpackDirectory, swigJar.getArtifactId(), swigJar.getVersion(),
-                                                  NarUtil.getAOL( architecture, os, linker, null ).toString() ), "swig" );
+                new File( narLayout.getBinDirectory( unpackDirectory, swigJar.getArtifactId(), swigJar.getVersion(),
+                                                     NarUtil.getAOL( architecture, os, linker, null ).toString() ),
+                          "swig" );
         }
         else
         {
@@ -619,12 +629,13 @@ public class SwigMojo
         cmdLine.add( "-I" + sourceDirectory );
 
         // NAR dependency include dirs
+        NarLayout narLayout = AbstractNarLayout.getLayout( layout, getLog() );
         List narIncludes = narManager.getNarDependencies( "compile" );
         for ( Iterator i = narIncludes.iterator(); i.hasNext(); )
         {
             Artifact narInclude = (Artifact) i.next();
-            File narIncludeDir = new File( narManager.getNarFile( narInclude ).getParentFile(), "nar" );
-            narIncludeDir = new File( narIncludeDir, "include" );
+            File narIncludeDir =
+                narLayout.getIncludeDirectory( unpackDirectory, narInclude.getArtifactId(), narInclude.getVersion() );
             if ( narIncludeDir.isDirectory() )
             {
                 cmdLine.add( "-I" + narIncludeDir );
