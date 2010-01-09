@@ -257,6 +257,14 @@ public class SwigMojo
     private String layout;
 
     /**
+     * Adds system libraries to the linker. Will work in combination with &lt;sysLibs&gt;. The format is comma
+     * separated, colon-delimited values (name:type), like "dl:shared, pthread:shared".
+     *
+     * @parameter expression=""
+     */
+    private String sysLibSet;
+
+    /**
      * @parameter expression="${project}"
      * @required
      * @readonly
@@ -387,7 +395,7 @@ public class SwigMojo
                 version = swigPlugin.getVersion();
             }
             Artifact swigJar =
-                new DefaultArtifact( groupId, artifactId, VersionRange.createFromVersion( version ), "compile", "jar",
+                new DefaultArtifact( groupId, artifactId, VersionRange.createFromVersion( version ), "compile", "nar",
                                      "", artifactHandler );
 
             // download jar file
@@ -539,6 +547,16 @@ public class SwigMojo
         Xpp3Dom exclude = new Xpp3Dom( "exclude" );
         exclude.setValue( packageName.replace( '.', File.separatorChar ) + File.separatorChar + "*.class" );
         excludes.addChild( exclude );
+
+        if( sysLibSet != null && !sysLibSet.isEmpty() )
+        {
+           Xpp3Dom linker = new Xpp3Dom( "linker" );
+           narConfig.addChild( linker );
+
+           Xpp3Dom sysLibSetNode = new Xpp3Dom( "sysLibSet" );
+           sysLibSetNode.setValue( sysLibSet );
+           linker.addChild( sysLibSetNode );
+        }
     }
 
     private String[] generateCommandLine( File swig, File swigInclude, File swigJavaInclude )
