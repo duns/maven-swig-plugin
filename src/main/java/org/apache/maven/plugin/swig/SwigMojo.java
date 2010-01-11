@@ -32,6 +32,7 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
@@ -296,7 +297,14 @@ public class SwigMojo
      */
     private ArtifactResolver artifactResolver;
 
-    /**
+   /**
+     * @component role="org.apache.maven.artifact.factory.ArtifactFactory"
+     * @required
+     * @readonly
+     */
+   private ArtifactFactory artifactFactory;
+
+   /**
      * Remote repositories which will be searched for source attachments.
      * 
      * @parameter expression="${project.remoteArtifactRepositories}"
@@ -394,9 +402,10 @@ public class SwigMojo
                     (Plugin) project.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-swig-plugin" );
                 version = swigPlugin.getVersion();
             }
-            Artifact swigJar =
-                new DefaultArtifact( groupId, artifactId, VersionRange.createFromVersion( version ), "compile", "nar",
-                                     "", artifactHandler );
+            Artifact swigJar = artifactFactory.createArtifactWithClassifier(
+                    groupId, artifactId, version, "nar", "");
+//                new DefaultArtifact( groupId, artifactId, VersionRange.createFromVersion( version ), "compile", "nar",
+//                                     "", artifactHandler );
 
             // download jar file
             try
