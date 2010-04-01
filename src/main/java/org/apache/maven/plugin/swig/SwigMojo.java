@@ -704,6 +704,15 @@ public class SwigMojo
             cmdLine.add( "-I" + swigInclude.toString() );
         }
 
+        // custom include paths
+        if (includePaths != null && !includePaths.isEmpty())
+        {
+          for ( Iterator i = includePaths.iterator(); i.hasNext(); )
+          {
+             cmdLine.add( "-I" + i.next() );
+          }
+        }
+        
         // swig file
         cmdLine.add( sourceDirectory + source );
 
