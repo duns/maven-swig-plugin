@@ -320,6 +320,18 @@ public class SwigMojo
      * @required
      */
     private ArchiverManager archiverManager;
+    
+    /**
+     * To provide some compiler options to the nar plugin
+     * @parameter
+     */
+    private String[] compilerOptions;
+    
+    /**
+     * To provide some linker options to the nar plugin
+     * @parameter
+     */
+    private String[] linkerOptions;
 
     private NarManager narManager;
 
@@ -534,6 +546,27 @@ public class SwigMojo
         narSystemPackage.setValue( packageName );
         library.addChild( narSystemPackage );
 
+        // additional options for the compiler
+        if( compilerOptions != null && compilerOptions.length > 0 )
+        {
+        	Xpp3Dom comp = null;
+        	if ( cpp )
+        		comp = new Xpp3Dom( "cpp" );
+        	else
+        		comp = new Xpp3Dom( "c" );
+        	Xpp3Dom options = new Xpp3Dom( "options" );
+        	int i = 0;
+        	while( i < compilerOptions.length )
+        	{
+        		Xpp3Dom option = new Xpp3Dom( "option" );
+        		option.setValue( compilerOptions[i] );
+        		options.addChild( option );
+        		i++;
+        	}
+        	comp.addChild( options );
+        	narConfig.addChild( comp );
+        }
+
         // include and link with java
         Xpp3Dom java = new Xpp3Dom( "java" );
         narConfig.addChild( java );
@@ -557,14 +590,33 @@ public class SwigMojo
         exclude.setValue( packageName.replace( '.', File.separatorChar ) + File.separatorChar + "*.class" );
         excludes.addChild( exclude );
 
-        if( sysLibSet != null && sysLibSet != "" )
-        {
+       if( ( sysLibSet != null && (sysLibSet != "") ) ||	
+           ( linkerOptions != null && linkerOptions.length > 0 ) )        
+       {
            Xpp3Dom linker = new Xpp3Dom( "linker" );
            narConfig.addChild( linker );
 
-           Xpp3Dom sysLibSetNode = new Xpp3Dom( "sysLibSet" );
-           sysLibSetNode.setValue( sysLibSet );
-           linker.addChild( sysLibSetNode );
+           // additional options for the linker
+           if( linkerOptions.length > 0 )
+           {
+        	   Xpp3Dom options = new Xpp3Dom( "options" );
+        	   int i = 0;
+        	   while ( i < linkerOptions.length )
+        	   {
+        		   Xpp3Dom option = new Xpp3Dom( "option" );
+        		   option.setValue( linkerOptions[i] );
+        		   options.addChild( option );
+        		   i++;
+    		   }
+           	linker.addChild( options );
+           }
+           
+           if( sysLibSet != null && !sysLibSet.isEmpty() )
+           {
+	           Xpp3Dom sysLibSetNode = new Xpp3Dom( "sysLibSet" );
+	           sysLibSetNode.setValue( sysLibSet );
+	           linker.addChild( sysLibSetNode );
+           }
         }
         
         if (includePaths != null && !includePaths.isEmpty())
