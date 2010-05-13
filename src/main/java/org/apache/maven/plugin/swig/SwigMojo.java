@@ -557,7 +557,7 @@ public class SwigMojo
         exclude.setValue( packageName.replace( '.', File.separatorChar ) + File.separatorChar + "*.class" );
         excludes.addChild( exclude );
 
-        if( sysLibSet != null && !sysLibSet.isEmpty() )
+        if( sysLibSet != null && sysLibSet != "" )
         {
            Xpp3Dom linker = new Xpp3Dom( "linker" );
            narConfig.addChild( linker );
