@@ -566,6 +566,31 @@ public class SwigMojo
            sysLibSetNode.setValue( sysLibSet );
            linker.addChild( sysLibSetNode );
         }
+        
+        if (includePaths != null && !includePaths.isEmpty())
+        {
+           final String compilerName = cpp ? "cpp" : "c";
+           Xpp3Dom compilerConfig = new Xpp3Dom( compilerName );
+           narConfig.addChild( compilerConfig );
+           
+           Xpp3Dom options = new Xpp3Dom( "options" );
+           compilerConfig.addChild( options );
+
+          for ( Iterator i = includePaths.iterator(); i.hasNext(); )
+          {
+              Xpp3Dom includePath = new Xpp3Dom( "option" );
+              includePath.setValue( "-I" + i.next() );
+              options.addChild( includePath );
+          }
+
+          Xpp3Dom standardIncludePath = new Xpp3Dom( "option" );
+          standardIncludePath.setValue( "-I" + "src/main/include" );
+          options.addChild( standardIncludePath );
+
+          Xpp3Dom rootIncludePath = new Xpp3Dom( "option" );
+          rootIncludePath.setValue( "-I" + sourceDirectory );
+          options.addChild( rootIncludePath );
+        }
     }
 
     private String[] generateCommandLine( File swig, File swigInclude, File swigJavaInclude )
@@ -679,6 +704,15 @@ public class SwigMojo
             cmdLine.add( "-I" + swigInclude.toString() );
         }
 
+        // custom include paths
+        if (includePaths != null && !includePaths.isEmpty())
+        {
+          for ( Iterator i = includePaths.iterator(); i.hasNext(); )
+          {
+             cmdLine.add( "-I" + i.next() );
+          }
+        }
+        
         // swig file
         cmdLine.add( sourceDirectory + source );
 
