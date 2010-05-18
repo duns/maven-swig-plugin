@@ -597,7 +597,7 @@ public class SwigMojo
            narConfig.addChild( linker );
 
            // additional options for the linker
-           if( linkerOptions.length > 0 )
+           if( linkerOptions != null && linkerOptions.length > 0 )
            {
         	   Xpp3Dom options = new Xpp3Dom( "options" );
         	   int i = 0;
