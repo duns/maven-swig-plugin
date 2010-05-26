@@ -30,7 +30,7 @@ You can also skip running swig by specifying <<<-Dswig.skip=true>>>.
 	
 	[[1]] User include directories specified by the \<includePaths\> and \<includePath\> tags.
 	
-	[[2]] Source directory <<<src/main/swg>>> with the swig source file, overrideable by
+	[[2]] Source directory <<<src/main/siwg>>> with the swig source file, overrideable by
 	the <sourceDirectory> tag.
 	
 	[[3]] <<<src/main/include>>>	
