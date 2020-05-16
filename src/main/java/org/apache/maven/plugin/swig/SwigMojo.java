@@ -74,14 +74,14 @@ public class SwigMojo
     /**
      * Skip the running of SWIG
      * 
-     * @parameter expression="${swig.skip}" default-value="false"
+     * @parameter property="swig.skip" default-value="false"
      */
     private boolean skip;
 
     /**
      * Force the running of SWIG
      * 
-     * @parameter expression="${swig.force}" default-value="false"
+     * @parameter property="swig.force" default-value="false"
      */
     private boolean force;
 
@@ -102,7 +102,7 @@ public class SwigMojo
     /**
      * Enable C++ processing, same as -c++ option for swig.
      * 
-     * @parameter expression="${swig.cpp}" default-value="false"
+     * @parameter property="swig.cpp" default-value="false"
      */
     private boolean cpp;
 
@@ -116,42 +116,42 @@ public class SwigMojo
     /**
      * List of warning numbers to be suppressed, same as -w option for swig.
      * 
-     * @parameter expression="${swig.noWarn}"
+     * @parameter property="swig.noWarn"
      */
     private String noWarn;
 
     /**
      * Enable all warnings, same as -Wall
      * 
-     * @parameter expression="${swig.warnAll}" default-value="false"
+     * @parameter property="swig.warnAll" default-value="false"
      */
     private boolean warnAll;
 
     /**
      * Treat warnings as errors, same as -Werror
      * 
-     * @parameter expression="${swig.warnError}" default-value="false"
+     * @parameter property="swig.warnError" default-value="false"
      */
     private boolean warnError;
 
     /**
      * The target directory into which to generate the output.
      * 
-     * @parameter expression="${project.build.directory}/swig"
+     * @parameter default="${project.build.directory}/swig"
      */
     private File targetDirectory;
 
     /**
      * The unpack directory into which to unpack the swig executable.
      * 
-     * @parameter expression="${project.build.directory}/nar/dependencies"
+     * @parameter default="${project.build.directory}/nar/dependencies"
      */
     private File unpackDirectory;
 
     /**
      * The package name for the generated java files (fully qualified ex: org.apache.maven.jni).
      * 
-     * @parameter expression="${swig.packageName}"
+     * @parameter property="swig.packageName"
      */
     private String packageName;
 
@@ -165,7 +165,7 @@ public class SwigMojo
     /**
      * The target directory into which to generate the java output, becomes -outdir option for swig.
      * 
-     * @parameter expression="${project.build.directory}/swig/java"
+     * @parameter default="${project.build.directory}/swig/java"
      */
     private String javaTargetDirectory;
 
@@ -175,14 +175,14 @@ public class SwigMojo
      * are deleted from the output directory just before the swig command is run. This allows the user to configure to
      * have the java files of the swig command in the src directory tree.
      * 
-     * @parameter expression="false"
+     * @parameter property="false"
      */
     private boolean cleanOutputDirectory;
 
     /**
      * The directory to look for swig files and swig include files. Also added to -I flag when swig is run.
      * 
-     * @parameter expression="${basedir}/src/main/swig"
+     * @parameter default="${basedir}/src/main/swig"
      * @required
      */
     private String sourceDirectory;
@@ -199,7 +199,7 @@ public class SwigMojo
      * The Architecture for picking up swig, Some choices are: "x86", "i386", "amd64", "ppc", "sparc", ... Defaults to a
      * derived value from ${os.arch}
      * 
-     * @parameter expression="${os.arch}"
+     * @parameter property="os.arch"
      * @required
      */
     private String architecture;
@@ -208,14 +208,14 @@ public class SwigMojo
      * The Operating System for picking up swig. Some choices are: "Windows", "Linux", "MacOSX", "SunOS", ... Defaults
      * to a derived value from ${os.name}
      * 
-     * @parameter expression=""
+     * @parameter property=""
      */
     private String os;
 
     /**
      * The granularity in milliseconds of the last modification date for testing whether a source needs recompilation
      * 
-     * @parameter expression="${idlj.staleMillis}" default-value="0"
+     * @parameter property="idlj.staleMillis" default-value="0"
      * @required
      */
     private int staleMillis;
@@ -223,35 +223,35 @@ public class SwigMojo
     /**
      * Swig Executable (overrides built-in or user configured reference to NAR)
      * 
-     * @parameter expression="${swig.exec}"
+     * @parameter property="swig.exec"
      */
     private String exec;
 
     /**
      * GroupId for the swig NAR
      * 
-     * @parameter expression="${swig.groupId}" default-value="org.swig"
+     * @parameter property="swig.groupId" default-value="org.swig"
      */
     private String groupId;
 
     /**
      * ArtifactId for the swig NAR
      * 
-     * @parameter expression="${swig.artifactId}" default-value="nar-swig"
+     * @parameter property="swig.artifactId" default-value="nar-swig"
      */
     private String artifactId;
 
     /**
      * Version for the swig NAR
      * 
-     * @parameter expression="${swig.version}"
+     * @parameter property="swig.version"
      */
     private String version;
 
     /**
      * Layout to be used for building and unpacking artifacts
      * 
-     * @parameter expression="${nar.layout}" default-value="com.github.maven_nar.NarLayout21"
+     * @parameter property="nar.layout" default-value="com.github.maven_nar.NarLayout21"
      * @required
      */
     private String layout;
@@ -260,19 +260,19 @@ public class SwigMojo
      * Adds system libraries to the linker. Will work in combination with &lt;sysLibs&gt;. The format is comma
      * separated, colon-delimited values (name:type), like "dl:shared, pthread:shared".
      *
-     * @parameter expression=""
+     * @parameter property=""
      */
     private String sysLibSet;
 
     /**
-     * @parameter expression="${project}"
+     * @parameter property="project"
      * @required
      * @readonly
      */
     private MavenProject project;
 
     /**
-     * @parameter expression="${localRepository}"
+     * @parameter property="localRepository"
      * @required
      * @readonly
      */
@@ -306,7 +306,7 @@ public class SwigMojo
     /**
      * Remote repositories which will be searched for source attachments.
      * 
-     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @parameter property="project.remoteArtifactRepositories"
      * @required
      * @readonly
      */
@@ -410,7 +410,7 @@ public class SwigMojo
             if ( version == null )
             {
                 Plugin swigPlugin =
-                    (Plugin) project.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-swig-plugin" );
+                    (Plugin) project.getBuild().getPluginsAsMap().get( "com.github.duns:swig-maven-plugin" );
                 version = swigPlugin.getVersion();
             }
             Artifact swigJar = artifactFactory.createArtifactWithClassifier(
