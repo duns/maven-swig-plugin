@@ -35,7 +35,7 @@
   </description>
   <url>http://duns.github.com/maven-swig-plugin/</url>
 
-  <distributionManagement>
+  <!--<distributionManagement>
     <repository>
       <id>duns-maven-releases</id>
       <name>Github packages</name>
@@ -49,7 +49,7 @@
     <site>
       <url>http://mark.donszelmann.org/maven-swig-plugin/</url>
     </site>
-  </distributionManagement>
+  </distributionManagement>-->
 
   <prerequisites>
     <maven>2.0.9</maven>
