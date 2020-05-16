@@ -27,7 +27,7 @@
   </parent>
 
   <groupId>com.github.duns</groupId>
-  <artifactId>swig-maven-plugin</artifactId>
+  <artifactId>maven-swig-plugin</artifactId>
   <version>1.3.40-1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <name>Maven SWIG Plugin</name>
@@ -36,32 +36,20 @@
   </description>
   <url>http://duns.github.com/maven-swig-plugin/</url>
 
-  <!--<distributionManagement>
+  <distributionManagement>
     <repository>
       <id>duns-maven-releases</id>
       <name>Github packages</name>
-      <url>https://maven.pkg.github.com/duns</url>
+      <url>https://maven.pkg.github.com/duns/maven-swig-plugin</url>
     </repository>
     <snapshotRepository>
       <id>duns-maven-snapshots</id>
       <name>Github packages</name>
-      <url>https://maven.pkg.github.com/duns</url>
+      <url>https://maven.pkg.github.com/duns/maven-swig-plugin</url>
     </snapshotRepository>
     <site>
       <url>http://mark.donszelmann.org/maven-swig-plugin/</url>
     </site>
-  </distributionManagement>-->
-  <distributionManagement>
-    <repository>
-      <id>github</id>
-      <name>GitHub Apache Maven Packages</name>
-      <url>https://maven.pkg.github.com/nalbion/maven-swig-plugin</url>
-    </repository>
-    <snapshotRepository>
-      <id>github-snapshot</id>
-      <name>GitHub Apache Maven Packages</name>
-      <url>https://maven.pkg.github.com/nalbion/maven-swig-plugin</url>
-    </snapshotRepository>
   </distributionManagement>
 
   <prerequisites>
