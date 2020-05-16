@@ -24,11 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -304,7 +300,7 @@ public class SwigMojo
      */
    private ArtifactFactory artifactFactory;
 
-   /**
+    /**
      * Remote repositories which will be searched for source attachments.
      * 
      * @parameter expression="${project.remoteArtifactRepositories}"
@@ -360,7 +356,7 @@ public class SwigMojo
 
         os = NarUtil.getOS( os );
 
-        Linker linker = new Linker( NarUtil.getLinkerName( architecture, os, null ) );
+        Linker linker = new Linker("Windows".equals(os) ? "msvc" : "g++", getLog());
         narManager = new NarManager( getLog(), localRepository, project, architecture, os, linker );
 
         targetDirectory = new File( targetDirectory, cpp ? "c++" : "c" );
@@ -396,7 +392,7 @@ public class SwigMojo
         // unpacking happens in process-sources which is definitely too late
         // so we need to handle this here ourselves.
         NarLayout narLayout = AbstractNarLayout.getLayout( layout, getLog() );
-        List narArtifacts = narManager.getNarDependencies( "compile" );
+        List narArtifacts = getNarDependencies( "compile" );
         narManager.downloadAttachedNars( narArtifacts, remoteArtifactRepositories, artifactResolver, null );
         narManager.unpackAttachedNars( narArtifacts, archiverManager, null, os, narLayout, unpackDirectory );
 
@@ -451,7 +447,7 @@ public class SwigMojo
             swigJavaInclude = new File( swigInclude, "java" );
             swig =
                 new File( narLayout.getBinDirectory( unpackDirectory, swigJar.getArtifactId(), swigJar.getVersion(),
-                                                     NarUtil.getAOL( architecture, os, linker, null ).toString() ),
+                                                     NarUtil.getAOL( project, architecture, os, linker, null, getLog() ).toString() ),
                           "swig" );
         }
         else
@@ -508,6 +504,35 @@ public class SwigMojo
         {
             throw new MojoExecutionException( "SWIG: Creation of timestamp flag file failed", e );
         }
+    }
+
+    /**
+	* Returns dependencies which are dependent on NAR files (i.e. contain NarInfo)
+    * Copied from http://java.freehep.org/svn/repos/freehep/show/freehep/obsolete/maven-plugins/freehep-nar-plugin/plugin/src/main/java/org/freehep/maven/nar/NarManager.java?revision=HEAD
+	*/
+    private List/* <NarArtifact> */getNarDependencies(String scope)
+        throws MojoExecutionException {
+        List narDependencies = new LinkedList();
+        for (Iterator i = getDependencies(scope).iterator(); i.hasNext();) {
+            Artifact dependency = (Artifact) i.next();
+            getLog().debug("Examining artifact for NarInfo: "+dependency);
+
+            NarInfo narInfo = narManager.getNarInfo(dependency);
+            if (narInfo != null) {
+ 	            getLog().debug("    - added as NarDependency");
+ 	            narDependencies.add(new NarArtifact(dependency, narInfo));
+ 	        }
+        }
+        return narDependencies;
+    }
+
+    private List getDependencies(String scope) {
+        if (scope.equals("test")) {
+   	        return project.getTestArtifacts();
+   	    } else if (scope.equals("runtime")) {
+   	        return project.getRuntimeArtifacts();
+   	    }
+        return project.getCompileArtifacts();
     }
 
     private void configureNarPlugin()
@@ -734,7 +759,7 @@ public class SwigMojo
 
         // NAR dependency include dirs
         NarLayout narLayout = AbstractNarLayout.getLayout( layout, getLog() );
-        List narIncludes = narManager.getNarDependencies( "compile" );
+        List narIncludes = getNarDependencies( "compile" );
         for ( Iterator i = narIncludes.iterator(); i.hasNext(); )
         {
             Artifact narInclude = (Artifact) i.next();

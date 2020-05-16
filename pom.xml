@@ -38,18 +38,16 @@
   <distributionManagement>
     <repository>
       <id>duns-maven-releases</id>
-      <name>Duns' Maven Releases</name>
-      <url>file:///Users/duns/sonatype/git/maven-releases</url>
+      <name>Github packages</name>
+      <url>https://maven.pkg.github.com/duns</url>
     </repository>
     <snapshotRepository>
       <id>duns-maven-snapshots</id>
-      <name>Duns' Maven Snapshots</name>
-      <url>file:///Users/duns/sonatype/git/maven-snapshots</url>
+      <name>Github packages</name>
+      <url>https://maven.pkg.github.com/duns</url>
     </snapshotRepository>
-  <!-- temporarily until we have a fixed site -->
     <site>
-      <id>local</id>
-      <url>file:///Users/duns/sonatype/git/maven-swig-plugin-site</url>
+      <url>http://mark.donszelmann.org/maven-swig-plugin/</url>
     </site>
   </distributionManagement>
 
@@ -108,8 +106,8 @@
 
     <dependency>
       <groupId>com.github.maven-nar</groupId>
-			<artifactId>nar-maven-plugin</artifactId>
-			<version>3.5.1</version>
+      <artifactId>nar-maven-plugin</artifactId>
+      <version>3.5.1</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
