@@ -251,7 +251,7 @@ public class SwigMojo
     /**
      * Layout to be used for building and unpacking artifacts
      * 
-     * @parameter expression="${nar.layout}" default-value="org.apache.maven.plugin.nar.NarLayout21"
+     * @parameter expression="${nar.layout}" default-value="com.github.maven_nar.NarLayout21"
      * @required
      */
     private String layout;
