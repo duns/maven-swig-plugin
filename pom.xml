@@ -107,9 +107,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>nar-maven-plugin</artifactId>
-      <version>3.0.0-scijava-2</version>
+      <groupId>com.github.maven-nar</groupId>
+			<artifactId>nar-maven-plugin</artifactId>
+			<version>3.5.1</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
