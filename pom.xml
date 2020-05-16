@@ -57,6 +57,11 @@
       <name>GitHub Apache Maven Packages</name>
       <url>https://maven.pkg.github.com/nalbion/maven-swig-plugin</url>
     </repository>
+    <snapshotRepository>
+      <id>github</id>
+      <name>GitHub Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/nalbion/maven-swig-plugin</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <prerequisites>
