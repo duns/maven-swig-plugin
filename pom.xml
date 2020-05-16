@@ -50,6 +50,13 @@
       <url>http://mark.donszelmann.org/maven-swig-plugin/</url>
     </site>
   </distributionManagement>-->
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/nalbion/maven-swig-plugin</url>
+    </repository>
+  </distributionManagement>
 
   <prerequisites>
     <maven>2.0.9</maven>
