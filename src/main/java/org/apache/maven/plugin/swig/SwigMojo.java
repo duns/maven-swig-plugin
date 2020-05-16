@@ -24,17 +24,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -356,7 +359,7 @@ public class SwigMojo
 
         os = NarUtil.getOS( os );
 
-        Linker linker = new Linker("Windows".equals(os) ? "msvc" : "g++", getLog());
+        Linker linker = new Linker( "Windows".equals( os ) ? "msvc" : "g++", getLog() );
         narManager = new NarManager( getLog(), localRepository, project, architecture, os, linker );
 
         targetDirectory = new File( targetDirectory, cpp ? "c++" : "c" );
@@ -411,7 +414,7 @@ public class SwigMojo
                 version = swigPlugin.getVersion();
             }
             Artifact swigJar = artifactFactory.createArtifactWithClassifier(
-                    groupId, artifactId, version, "nar", "");
+                    groupId, artifactId, version, "nar", "" );
 //                new DefaultArtifact( groupId, artifactId, VersionRange.createFromVersion( version ), "compile", "nar",
 //                                     "", artifactHandler );
 
@@ -447,7 +450,8 @@ public class SwigMojo
             swigJavaInclude = new File( swigInclude, "java" );
             swig =
                 new File( narLayout.getBinDirectory( unpackDirectory, swigJar.getArtifactId(), swigJar.getVersion(),
-                                                     NarUtil.getAOL( project, architecture, os, linker, null, getLog() ).toString() ),
+                                                     NarUtil.getAOL( project, architecture, os, linker, null, getLog() )
+                                                             .toString() ),
                           "swig" );
         }
         else
@@ -507,31 +511,39 @@ public class SwigMojo
     }
 
     /**
-	* Returns dependencies which are dependent on NAR files (i.e. contain NarInfo)
-    * Copied from http://java.freehep.org/svn/repos/freehep/show/freehep/obsolete/maven-plugins/freehep-nar-plugin/plugin/src/main/java/org/freehep/maven/nar/NarManager.java?revision=HEAD
-	*/
-    private List/* <NarArtifact> */getNarDependencies(String scope)
-        throws MojoExecutionException {
+    * Returns dependencies which are dependent on NAR files (i.e. contain NarInfo)
+    * Copied from http://java.freehep.org/svn/repos/freehep/show/freehep/obsolete/maven-plugins/freehep-nar-plugin/
+     * plugin/src/main/java/org/freehep/maven/nar/NarManager.java?revision=HEAD
+    */
+    private List/* <NarArtifact> */getNarDependencies( String scope )
+        throws MojoExecutionException
+    {
         List narDependencies = new LinkedList();
-        for (Iterator i = getDependencies(scope).iterator(); i.hasNext();) {
+        for ( Iterator i = getDependencies( scope ).iterator(); i.hasNext(); )
+        {
             Artifact dependency = (Artifact) i.next();
-            getLog().debug("Examining artifact for NarInfo: "+dependency);
+            getLog().debug( "Examining artifact for NarInfo: " + dependency );
 
-            NarInfo narInfo = narManager.getNarInfo(dependency);
-            if (narInfo != null) {
- 	            getLog().debug("    - added as NarDependency");
- 	            narDependencies.add(new NarArtifact(dependency, narInfo));
- 	        }
+            NarInfo narInfo = narManager.getNarInfo( dependency );
+            if ( narInfo != null )
+            {
+                getLog().debug( "    - added as NarDependency" );
+                narDependencies.add( new NarArtifact( dependency, narInfo ) );
+            }
         }
         return narDependencies;
     }
 
-    private List getDependencies(String scope) {
-        if (scope.equals("test")) {
-   	        return project.getTestArtifacts();
-   	    } else if (scope.equals("runtime")) {
-   	        return project.getRuntimeArtifacts();
-   	    }
+    private List getDependencies( String scope )
+    {
+        if ( scope.equals( "test" ) )
+        {
+            return project.getTestArtifacts();
+        }
+        else if ( scope.equals( "runtime" ) )
+        {
+            return project.getRuntimeArtifacts();
+        }
         return project.getCompileArtifacts();
     }
 
@@ -548,7 +560,8 @@ public class SwigMojo
         if ( narPlugin.getConfiguration() != null )
         {
             throw new MojoExecutionException(
-                                              "Please configure maven-nar-plugin without <configuration> element, so that the maven-swig-plugin can configure it" );
+                                              "Please configure maven-nar-plugin without <configuration> element, "
+                                                      + "so that the maven-swig-plugin can configure it" );
         }
 
         getLog().info( "Configuring maven-nar-plugin to create jni library" );
@@ -572,24 +585,28 @@ public class SwigMojo
         library.addChild( narSystemPackage );
 
         // additional options for the compiler
-        if( compilerOptions != null && compilerOptions.length > 0 )
+        if ( compilerOptions != null && compilerOptions.length > 0 )
         {
-        	Xpp3Dom comp = null;
-        	if ( cpp )
-        		comp = new Xpp3Dom( "cpp" );
-        	else
-        		comp = new Xpp3Dom( "c" );
-        	Xpp3Dom options = new Xpp3Dom( "options" );
-        	int i = 0;
-        	while( i < compilerOptions.length )
-        	{
-        		Xpp3Dom option = new Xpp3Dom( "option" );
-        		option.setValue( compilerOptions[i] );
-        		options.addChild( option );
-        		i++;
-        	}
-        	comp.addChild( options );
-        	narConfig.addChild( comp );
+            Xpp3Dom comp = null;
+            if ( cpp )
+            {
+                comp = new Xpp3Dom( "cpp" );
+            }
+            else
+            {
+                comp = new Xpp3Dom( "c" );
+            }
+            Xpp3Dom options = new Xpp3Dom( "options" );
+            int i = 0;
+            while ( i < compilerOptions.length )
+            {
+                Xpp3Dom option = new Xpp3Dom( "option" );
+                option.setValue( compilerOptions[i] );
+                options.addChild( option );
+                i++;
+            }
+            comp.addChild( options );
+            narConfig.addChild( comp );
         }
 
         // include and link with java
@@ -615,36 +632,36 @@ public class SwigMojo
         exclude.setValue( packageName.replace( '.', File.separatorChar ) + File.separatorChar + "*.class" );
         excludes.addChild( exclude );
 
-       if( ( sysLibSet != null && (sysLibSet != "") ) ||	
-           ( linkerOptions != null && linkerOptions.length > 0 ) )        
+       if ( ( sysLibSet != null && ( sysLibSet != "" ) )
+               || ( linkerOptions != null && linkerOptions.length > 0 ) )
        {
            Xpp3Dom linker = new Xpp3Dom( "linker" );
            narConfig.addChild( linker );
 
            // additional options for the linker
-           if( linkerOptions != null && linkerOptions.length > 0 )
+           if ( linkerOptions != null && linkerOptions.length > 0 )
            {
-        	   Xpp3Dom options = new Xpp3Dom( "options" );
-        	   int i = 0;
-        	   while ( i < linkerOptions.length )
-        	   {
-        		   Xpp3Dom option = new Xpp3Dom( "option" );
-        		   option.setValue( linkerOptions[i] );
-        		   options.addChild( option );
-        		   i++;
-    		   }
-           	linker.addChild( options );
+               Xpp3Dom options = new Xpp3Dom( "options" );
+               int i = 0;
+               while ( i < linkerOptions.length )
+               {
+                   Xpp3Dom option = new Xpp3Dom( "option" );
+                   option.setValue( linkerOptions[i] );
+                   options.addChild( option );
+                   i++;
+               }
+               linker.addChild( options );
            }
            
-           if( sysLibSet != null && !sysLibSet.isEmpty() )
+           if ( sysLibSet != null && !sysLibSet.isEmpty() )
            {
-	           Xpp3Dom sysLibSetNode = new Xpp3Dom( "sysLibSet" );
-	           sysLibSetNode.setValue( sysLibSet );
-	           linker.addChild( sysLibSetNode );
+               Xpp3Dom sysLibSetNode = new Xpp3Dom( "sysLibSet" );
+               sysLibSetNode.setValue( sysLibSet );
+               linker.addChild( sysLibSetNode );
            }
         }
         
-        if (includePaths != null && !includePaths.isEmpty())
+        if ( includePaths != null && !includePaths.isEmpty() )
         {
            final String compilerName = cpp ? "cpp" : "c";
            Xpp3Dom compilerConfig = new Xpp3Dom( compilerName );
@@ -782,7 +799,7 @@ public class SwigMojo
         }
 
         // custom include paths
-        if (includePaths != null && !includePaths.isEmpty())
+        if ( includePaths != null && !includePaths.isEmpty() )
         {
           for ( Iterator i = includePaths.iterator(); i.hasNext(); )
           {

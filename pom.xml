@@ -23,7 +23,7 @@
   <parent>
     <artifactId>maven-plugins</artifactId>
     <groupId>org.apache.maven.plugins</groupId>
-    <version>18</version>
+    <version>33</version>
   </parent>
 
   <groupId>com.github.duns</groupId>
@@ -67,7 +67,9 @@
   </issueManagement>
 
   <properties>
-    <mavenVersion>2.0.9</mavenVersion>
+    <mavenVersion>2.2.1</mavenVersion>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -126,7 +128,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.7</version>
+        <version>3.0.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -134,18 +136,17 @@
         <version>2.2</version>
       </plugin>
     </plugins>
-  </reporting>  
+  </reporting>
 
   <profiles>
     <profile>
       <id>check</id>
-    
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-docck-plugin</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
             <executions>
               <execution>
                 <goals>
@@ -172,7 +173,7 @@
             <version>1.5</version>
             <configuration>
               <debug>false</debug>
-   	      <ignoreFailures>false</ignoreFailures>
+   	          <ignoreFailures>false</ignoreFailures>
               <pomIncludes>
               	<pomInclude>*/pom.xml</pomInclude>
               </pomIncludes>
