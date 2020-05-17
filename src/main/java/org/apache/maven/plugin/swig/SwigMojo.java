@@ -27,29 +27,28 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.nar.AbstractNarLayout;
-import org.apache.maven.plugin.nar.Linker;
-import org.apache.maven.plugin.nar.NarArtifact;
-import org.apache.maven.plugin.nar.NarInfo;
-import org.apache.maven.plugin.nar.NarLayout;
-import org.apache.maven.plugin.nar.NarManager;
-import org.apache.maven.plugin.nar.NarUtil;
+import com.github.maven_nar.AbstractNarLayout;
+import com.github.maven_nar.Linker;
+import com.github.maven_nar.NarArtifact;
+import com.github.maven_nar.NarInfo;
+import com.github.maven_nar.NarLayout;
+import com.github.maven_nar.NarManager;
+import com.github.maven_nar.NarUtil;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
@@ -75,14 +74,14 @@ public class SwigMojo
     /**
      * Skip the running of SWIG
      * 
-     * @parameter expression="${swig.skip}" default-value="false"
+     * @parameter property="swig.skip" default-value="false"
      */
     private boolean skip;
 
     /**
      * Force the running of SWIG
      * 
-     * @parameter expression="${swig.force}" default-value="false"
+     * @parameter property="swig.force" default-value="false"
      */
     private boolean force;
 
@@ -103,7 +102,7 @@ public class SwigMojo
     /**
      * Enable C++ processing, same as -c++ option for swig.
      * 
-     * @parameter expression="${swig.cpp}" default-value="false"
+     * @parameter property="swig.cpp" default-value="false"
      */
     private boolean cpp;
 
@@ -117,42 +116,42 @@ public class SwigMojo
     /**
      * List of warning numbers to be suppressed, same as -w option for swig.
      * 
-     * @parameter expression="${swig.noWarn}"
+     * @parameter property="swig.noWarn"
      */
     private String noWarn;
 
     /**
      * Enable all warnings, same as -Wall
      * 
-     * @parameter expression="${swig.warnAll}" default-value="false"
+     * @parameter property="swig.warnAll" default-value="false"
      */
     private boolean warnAll;
 
     /**
      * Treat warnings as errors, same as -Werror
      * 
-     * @parameter expression="${swig.warnError}" default-value="false"
+     * @parameter property="swig.warnError" default-value="false"
      */
     private boolean warnError;
 
     /**
      * The target directory into which to generate the output.
      * 
-     * @parameter expression="${project.build.directory}/swig"
+     * @parameter default="${project.build.directory}/swig"
      */
     private File targetDirectory;
 
     /**
      * The unpack directory into which to unpack the swig executable.
      * 
-     * @parameter expression="${project.build.directory}/nar/dependencies"
+     * @parameter default="${project.build.directory}/nar/dependencies"
      */
     private File unpackDirectory;
 
     /**
      * The package name for the generated java files (fully qualified ex: org.apache.maven.jni).
      * 
-     * @parameter expression="${swig.packageName}"
+     * @parameter property="swig.packageName"
      */
     private String packageName;
 
@@ -166,7 +165,7 @@ public class SwigMojo
     /**
      * The target directory into which to generate the java output, becomes -outdir option for swig.
      * 
-     * @parameter expression="${project.build.directory}/swig/java"
+     * @parameter default="${project.build.directory}/swig/java"
      */
     private String javaTargetDirectory;
 
@@ -176,14 +175,14 @@ public class SwigMojo
      * are deleted from the output directory just before the swig command is run. This allows the user to configure to
      * have the java files of the swig command in the src directory tree.
      * 
-     * @parameter expression="false"
+     * @parameter property="false"
      */
     private boolean cleanOutputDirectory;
 
     /**
      * The directory to look for swig files and swig include files. Also added to -I flag when swig is run.
      * 
-     * @parameter expression="${basedir}/src/main/swig"
+     * @parameter default="${basedir}/src/main/swig"
      * @required
      */
     private String sourceDirectory;
@@ -200,7 +199,7 @@ public class SwigMojo
      * The Architecture for picking up swig, Some choices are: "x86", "i386", "amd64", "ppc", "sparc", ... Defaults to a
      * derived value from ${os.arch}
      * 
-     * @parameter expression="${os.arch}"
+     * @parameter property="os.arch"
      * @required
      */
     private String architecture;
@@ -209,14 +208,14 @@ public class SwigMojo
      * The Operating System for picking up swig. Some choices are: "Windows", "Linux", "MacOSX", "SunOS", ... Defaults
      * to a derived value from ${os.name}
      * 
-     * @parameter expression=""
+     * @parameter property=""
      */
     private String os;
 
     /**
      * The granularity in milliseconds of the last modification date for testing whether a source needs recompilation
      * 
-     * @parameter expression="${idlj.staleMillis}" default-value="0"
+     * @parameter property="idlj.staleMillis" default-value="0"
      * @required
      */
     private int staleMillis;
@@ -224,35 +223,35 @@ public class SwigMojo
     /**
      * Swig Executable (overrides built-in or user configured reference to NAR)
      * 
-     * @parameter expression="${swig.exec}"
+     * @parameter property="swig.exec"
      */
     private String exec;
 
     /**
      * GroupId for the swig NAR
      * 
-     * @parameter expression="${swig.groupId}" default-value="org.swig"
+     * @parameter property="swig.groupId" default-value="org.swig"
      */
     private String groupId;
 
     /**
      * ArtifactId for the swig NAR
      * 
-     * @parameter expression="${swig.artifactId}" default-value="nar-swig"
+     * @parameter property="swig.artifactId" default-value="nar-swig"
      */
     private String artifactId;
 
     /**
      * Version for the swig NAR
      * 
-     * @parameter expression="${swig.version}"
+     * @parameter property="swig.version"
      */
     private String version;
 
     /**
      * Layout to be used for building and unpacking artifacts
      * 
-     * @parameter expression="${nar.layout}" default-value="org.apache.maven.plugin.nar.NarLayout21"
+     * @parameter property="nar.layout" default-value="com.github.maven_nar.NarLayout21"
      * @required
      */
     private String layout;
@@ -261,19 +260,19 @@ public class SwigMojo
      * Adds system libraries to the linker. Will work in combination with &lt;sysLibs&gt;. The format is comma
      * separated, colon-delimited values (name:type), like "dl:shared, pthread:shared".
      *
-     * @parameter expression=""
+     * @parameter property=""
      */
     private String sysLibSet;
 
     /**
-     * @parameter expression="${project}"
+     * @parameter property="project"
      * @required
      * @readonly
      */
     private MavenProject project;
 
     /**
-     * @parameter expression="${localRepository}"
+     * @parameter property="localRepository"
      * @required
      * @readonly
      */
@@ -304,10 +303,10 @@ public class SwigMojo
      */
    private ArtifactFactory artifactFactory;
 
-   /**
+    /**
      * Remote repositories which will be searched for source attachments.
      * 
-     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @parameter property="project.remoteArtifactRepositories"
      * @required
      * @readonly
      */
@@ -360,7 +359,7 @@ public class SwigMojo
 
         os = NarUtil.getOS( os );
 
-        Linker linker = new Linker( NarUtil.getLinkerName( architecture, os, null ) );
+        Linker linker = new Linker( "Windows".equals( os ) ? "msvc" : "g++", getLog() );
         narManager = new NarManager( getLog(), localRepository, project, architecture, os, linker );
 
         targetDirectory = new File( targetDirectory, cpp ? "c++" : "c" );
@@ -396,7 +395,7 @@ public class SwigMojo
         // unpacking happens in process-sources which is definitely too late
         // so we need to handle this here ourselves.
         NarLayout narLayout = AbstractNarLayout.getLayout( layout, getLog() );
-        List narArtifacts = narManager.getNarDependencies( "compile" );
+        List narArtifacts = getNarDependencies( "compile" );
         narManager.downloadAttachedNars( narArtifacts, remoteArtifactRepositories, artifactResolver, null );
         narManager.unpackAttachedNars( narArtifacts, archiverManager, null, os, narLayout, unpackDirectory );
 
@@ -411,11 +410,11 @@ public class SwigMojo
             if ( version == null )
             {
                 Plugin swigPlugin =
-                    (Plugin) project.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-swig-plugin" );
+                    (Plugin) project.getBuild().getPluginsAsMap().get( "com.github.duns:swig-maven-plugin" );
                 version = swigPlugin.getVersion();
             }
             Artifact swigJar = artifactFactory.createArtifactWithClassifier(
-                    groupId, artifactId, version, "nar", "");
+                    groupId, artifactId, version, "nar", "" );
 //                new DefaultArtifact( groupId, artifactId, VersionRange.createFromVersion( version ), "compile", "nar",
 //                                     "", artifactHandler );
 
@@ -451,7 +450,8 @@ public class SwigMojo
             swigJavaInclude = new File( swigInclude, "java" );
             swig =
                 new File( narLayout.getBinDirectory( unpackDirectory, swigJar.getArtifactId(), swigJar.getVersion(),
-                                                     NarUtil.getAOL( architecture, os, linker, null ).toString() ),
+                                                     NarUtil.getAOL( project, architecture, os, linker, null, getLog() )
+                                                             .toString() ),
                           "swig" );
         }
         else
@@ -510,6 +510,43 @@ public class SwigMojo
         }
     }
 
+    /**
+    * Returns dependencies which are dependent on NAR files (i.e. contain NarInfo)
+    * Copied from http://java.freehep.org/svn/repos/freehep/show/freehep/obsolete/maven-plugins/freehep-nar-plugin/
+     * plugin/src/main/java/org/freehep/maven/nar/NarManager.java?revision=HEAD
+    */
+    private List/* <NarArtifact> */getNarDependencies( String scope )
+        throws MojoExecutionException
+    {
+        List narDependencies = new LinkedList();
+        for ( Iterator i = getDependencies( scope ).iterator(); i.hasNext(); )
+        {
+            Artifact dependency = (Artifact) i.next();
+            getLog().debug( "Examining artifact for NarInfo: " + dependency );
+
+            NarInfo narInfo = narManager.getNarInfo( dependency );
+            if ( narInfo != null )
+            {
+                getLog().debug( "    - added as NarDependency" );
+                narDependencies.add( new NarArtifact( dependency, narInfo ) );
+            }
+        }
+        return narDependencies;
+    }
+
+    private List getDependencies( String scope )
+    {
+        if ( scope.equals( "test" ) )
+        {
+            return project.getTestArtifacts();
+        }
+        else if ( scope.equals( "runtime" ) )
+        {
+            return project.getRuntimeArtifacts();
+        }
+        return project.getCompileArtifacts();
+    }
+
     private void configureNarPlugin()
         throws MojoExecutionException, MojoFailureException
     {
@@ -523,7 +560,8 @@ public class SwigMojo
         if ( narPlugin.getConfiguration() != null )
         {
             throw new MojoExecutionException(
-                                              "Please configure maven-nar-plugin without <configuration> element, so that the maven-swig-plugin can configure it" );
+                                              "Please configure maven-nar-plugin without <configuration> element, "
+                                                      + "so that the maven-swig-plugin can configure it" );
         }
 
         getLog().info( "Configuring maven-nar-plugin to create jni library" );
@@ -547,24 +585,28 @@ public class SwigMojo
         library.addChild( narSystemPackage );
 
         // additional options for the compiler
-        if( compilerOptions != null && compilerOptions.length > 0 )
+        if ( compilerOptions != null && compilerOptions.length > 0 )
         {
-        	Xpp3Dom comp = null;
-        	if ( cpp )
-        		comp = new Xpp3Dom( "cpp" );
-        	else
-        		comp = new Xpp3Dom( "c" );
-        	Xpp3Dom options = new Xpp3Dom( "options" );
-        	int i = 0;
-        	while( i < compilerOptions.length )
-        	{
-        		Xpp3Dom option = new Xpp3Dom( "option" );
-        		option.setValue( compilerOptions[i] );
-        		options.addChild( option );
-        		i++;
-        	}
-        	comp.addChild( options );
-        	narConfig.addChild( comp );
+            Xpp3Dom comp = null;
+            if ( cpp )
+            {
+                comp = new Xpp3Dom( "cpp" );
+            }
+            else
+            {
+                comp = new Xpp3Dom( "c" );
+            }
+            Xpp3Dom options = new Xpp3Dom( "options" );
+            int i = 0;
+            while ( i < compilerOptions.length )
+            {
+                Xpp3Dom option = new Xpp3Dom( "option" );
+                option.setValue( compilerOptions[i] );
+                options.addChild( option );
+                i++;
+            }
+            comp.addChild( options );
+            narConfig.addChild( comp );
         }
 
         // include and link with java
@@ -590,36 +632,36 @@ public class SwigMojo
         exclude.setValue( packageName.replace( '.', File.separatorChar ) + File.separatorChar + "*.class" );
         excludes.addChild( exclude );
 
-       if( ( sysLibSet != null && (sysLibSet != "") ) ||	
-           ( linkerOptions != null && linkerOptions.length > 0 ) )        
+       if ( ( sysLibSet != null && ( sysLibSet != "" ) )
+               || ( linkerOptions != null && linkerOptions.length > 0 ) )
        {
            Xpp3Dom linker = new Xpp3Dom( "linker" );
            narConfig.addChild( linker );
 
            // additional options for the linker
-           if( linkerOptions != null && linkerOptions.length > 0 )
+           if ( linkerOptions != null && linkerOptions.length > 0 )
            {
-        	   Xpp3Dom options = new Xpp3Dom( "options" );
-        	   int i = 0;
-        	   while ( i < linkerOptions.length )
-        	   {
-        		   Xpp3Dom option = new Xpp3Dom( "option" );
-        		   option.setValue( linkerOptions[i] );
-        		   options.addChild( option );
-        		   i++;
-    		   }
-           	linker.addChild( options );
+               Xpp3Dom options = new Xpp3Dom( "options" );
+               int i = 0;
+               while ( i < linkerOptions.length )
+               {
+                   Xpp3Dom option = new Xpp3Dom( "option" );
+                   option.setValue( linkerOptions[i] );
+                   options.addChild( option );
+                   i++;
+               }
+               linker.addChild( options );
            }
            
-           if( sysLibSet != null && !sysLibSet.isEmpty() )
+           if ( sysLibSet != null && !sysLibSet.isEmpty() )
            {
-	           Xpp3Dom sysLibSetNode = new Xpp3Dom( "sysLibSet" );
-	           sysLibSetNode.setValue( sysLibSet );
-	           linker.addChild( sysLibSetNode );
+               Xpp3Dom sysLibSetNode = new Xpp3Dom( "sysLibSet" );
+               sysLibSetNode.setValue( sysLibSet );
+               linker.addChild( sysLibSetNode );
            }
         }
         
-        if (includePaths != null && !includePaths.isEmpty())
+        if ( includePaths != null && !includePaths.isEmpty() )
         {
            final String compilerName = cpp ? "cpp" : "c";
            Xpp3Dom compilerConfig = new Xpp3Dom( compilerName );
@@ -734,7 +776,7 @@ public class SwigMojo
 
         // NAR dependency include dirs
         NarLayout narLayout = AbstractNarLayout.getLayout( layout, getLog() );
-        List narIncludes = narManager.getNarDependencies( "compile" );
+        List narIncludes = getNarDependencies( "compile" );
         for ( Iterator i = narIncludes.iterator(); i.hasNext(); )
         {
             Artifact narInclude = (Artifact) i.next();
@@ -757,7 +799,7 @@ public class SwigMojo
         }
 
         // custom include paths
-        if (includePaths != null && !includePaths.isEmpty())
+        if ( includePaths != null && !includePaths.isEmpty() )
         {
           for ( Iterator i = includePaths.iterator(); i.hasNext(); )
           {

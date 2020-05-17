@@ -23,10 +23,11 @@
   <parent>
     <artifactId>maven-plugins</artifactId>
     <groupId>org.apache.maven.plugins</groupId>
-    <version>18</version>
+    <version>33</version>
   </parent>
 
-  <artifactId>maven-swig-plugin</artifactId>
+  <groupId>com.github.duns</groupId>
+  <artifactId>swig-maven-plugin</artifactId>
   <version>1.3.40-1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <name>Maven SWIG Plugin</name>
@@ -38,18 +39,16 @@
   <distributionManagement>
     <repository>
       <id>duns-maven-releases</id>
-      <name>Duns' Maven Releases</name>
-      <url>file:///Users/duns/sonatype/git/maven-releases</url>
+      <name>Github packages</name>
+      <url>https://maven.pkg.github.com/duns/maven-swig-plugin</url>
     </repository>
     <snapshotRepository>
       <id>duns-maven-snapshots</id>
-      <name>Duns' Maven Snapshots</name>
-      <url>file:///Users/duns/sonatype/git/maven-snapshots</url>
+      <name>Github packages</name>
+      <url>https://maven.pkg.github.com/duns/maven-swig-plugin</url>
     </snapshotRepository>
-  <!-- temporarily until we have a fixed site -->
     <site>
-      <id>local</id>
-      <url>file:///Users/duns/sonatype/git/maven-swig-plugin-site</url>
+      <url>http://mark.donszelmann.org/maven-swig-plugin/</url>
     </site>
   </distributionManagement>
 
@@ -68,7 +67,9 @@
   </issueManagement>
 
   <properties>
-    <mavenVersion>2.0.9</mavenVersion>
+    <mavenVersion>2.2.1</mavenVersion>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -107,9 +108,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-nar-plugin</artifactId>
-      <version>2.1-SNAPSHOT</version>
+      <groupId>com.github.maven-nar</groupId>
+      <artifactId>nar-maven-plugin</artifactId>
+      <version>3.5.1</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
@@ -127,7 +128,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.7</version>
+        <version>3.0.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -135,18 +136,17 @@
         <version>2.2</version>
       </plugin>
     </plugins>
-  </reporting>  
+  </reporting>
 
   <profiles>
     <profile>
       <id>check</id>
-    
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-docck-plugin</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
             <executions>
               <execution>
                 <goals>
@@ -173,7 +173,7 @@
             <version>1.5</version>
             <configuration>
               <debug>false</debug>
-   	      <ignoreFailures>false</ignoreFailures>
+   	          <ignoreFailures>false</ignoreFailures>
               <pomIncludes>
               	<pomInclude>*/pom.xml</pomInclude>
               </pomIncludes>
